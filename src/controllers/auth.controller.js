@@ -28,6 +28,43 @@ class AuthController {
             next(error);
         }
     }
+
+    async verifyEmail(req, res, next) {
+        try {
+            const { token } = req.query;
+            if (!token) {
+                return res.status(400).json({ success: false, message: 'Token requerido' });
+            }
+            const user = await authService.verifyEmail(token);
+            return ApiResponse.success(res, { user }, '¡Correo verificado exitosamente! Ya puedes iniciar sesión.');
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async forgotPassword(req, res, next) {
+        try {
+            await authService.forgotPassword(req.body.email);
+            // Siempre responde igual para no revelar si el correo existe
+            return ApiResponse.success(res, null, 'Si el correo está registrado, recibirás un enlace para restablecer tu contraseña.');
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async resetPassword(req, res, next) {
+        try {
+            const { token } = req.query;
+            const { password } = req.body;
+            if (!token) {
+                return res.status(400).json({ success: false, message: 'Token requerido' });
+            }
+            await authService.resetPassword(token, password);
+            return ApiResponse.success(res, null, 'Contraseña restablecida exitosamente. Ya puedes iniciar sesión.');
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 module.exports = new AuthController();

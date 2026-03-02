@@ -4,6 +4,7 @@ const auth = require('../middlewares/auth');
 const role = require('../middlewares/role');
 const { validate } = require('../middlewares/errorHandler');
 const validators = require('../utils/validators');
+const { upload } = require('../services/cloudinary.service');
 
 const router = Router();
 
@@ -81,11 +82,15 @@ router.get('/:id', validators.paramId, validate, productController.getById);
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             required: [name, price, stock, categoryId]
  *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *                 description: Imagen del producto (jpg, png, webp - máx 5MB)
  *               name:
  *                 type: string
  *               description:
@@ -96,15 +101,13 @@ router.get('/:id', validators.paramId, validate, productController.getById);
  *                 type: integer
  *               categoryId:
  *                 type: integer
- *               imageUrl:
- *                 type: string
  *     responses:
  *       201:
  *         description: Producto creado
  *       403:
  *         description: Sin permisos
  */
-router.post('/', auth, role('admin'), validators.createProduct, validate, productController.create);
+router.post('/', auth, role('admin'), upload.single('image'), validators.createProduct, validate, productController.create);
 
 /**
  * @swagger
@@ -120,11 +123,33 @@ router.post('/', auth, role('admin'), validators.createProduct, validate, produc
  *         required: true
  *         schema:
  *           type: integer
+ *     requestBody:
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *                 description: Nueva imagen del producto (reemplaza la anterior)
+ *               name:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               price:
+ *                 type: number
+ *               stock:
+ *                 type: integer
+ *               categoryId:
+ *                 type: integer
+ *               active:
+ *                 type: boolean
  *     responses:
  *       200:
  *         description: Producto actualizado
  */
-router.put('/:id', auth, role('admin'), validators.updateProduct, validate, productController.update);
+router.put('/:id', auth, role('admin'), upload.single('image'), validators.updateProduct, validate, productController.update);
 
 /**
  * @swagger

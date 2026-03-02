@@ -1,3 +1,4 @@
+// Producto individual dentro del carrito de compras de un usuario
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 

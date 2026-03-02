@@ -82,6 +82,13 @@ router.get('/:id', validators.paramId, validate, orderController.getById);
  *     tags: [Pedidos]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID del pedido
  *     requestBody:
  *       required: true
  *       content:

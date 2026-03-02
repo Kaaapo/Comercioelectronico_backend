@@ -1,7 +1,30 @@
 const jwt = require('jsonwebtoken');
 
 /**
- * Configuración de Socket.IO para el seguimiento reactivo de pedidos
+ * Emite una notificación estructurada a una sala específica.
+ *
+ * Eventos disponibles que recibe el frontend:
+ *  - "notification" → notificación general (pedidos, pagos) solamnte se necesita escuchar sto y  mostrar el msg por parte de front
+ *
+ * Tipos de notificación (campo `type`):
+ *  - "order_created"          → usuario creó un pedido (canal: user_{id} y admin_channel)
+ *  - "order_status_updated"   → admin cambió estado del pedido (canal: user_{id})
+ *  - "payment_result"         → resultado del pago (canal: user_{id})
+ *  - "new_order_admin"        → nuevo pedido recibido (canal: admin_channel)
+ *  - "payment_admin"          → pago procesado (canal: admin_channel)
+ */
+const emitNotification = (io, room, type, title, message, data = {}) => {
+    io.to(room).emit('notification', {
+        type,
+        title,
+        message,
+        data,
+        timestamp: new Date(),
+    });
+};
+
+/**
+ * Configuración de Socket.IO para notificaciones en tiempo real
  */
 const setupOrderSocket = (io) => {
     // Middleware de autenticación para WebSocket
@@ -24,15 +47,15 @@ const setupOrderSocket = (io) => {
     io.on('connection', (socket) => {
         console.log(`🔌 Usuario conectado: ${socket.user.email} (${socket.user.role})`);
 
-        // Unir al usuario a su canal personal para recibir actualizaciones
+        // Canal personal del usuario
         socket.join(`user_${socket.user.id}`);
 
-        // Si es admin, unirlo también al canal de admin
+        // Canal exclusivo de administradores
         if (socket.user.role === 'admin') {
             socket.join('admin_channel');
         }
 
-        // Evento de ping para verificar conexión
+        // Ping para verificar conexión activa
         socket.on('ping', () => {
             socket.emit('pong', { message: 'Conexión activa', timestamp: new Date() });
         });
@@ -42,7 +65,7 @@ const setupOrderSocket = (io) => {
         });
     });
 
-    console.log('📡 Socket.IO configurado para seguimiento de pedidos');
+    console.log('📡 Socket.IO configurado para notificaciones en tiempo real');
 };
 
-module.exports = setupOrderSocket;
+module.exports = { setupOrderSocket, emitNotification };

@@ -4,7 +4,8 @@ const ApiResponse = require('../utils/apiResponse');
 class PaymentController {
     async processPayment(req, res, next) {
         try {
-            const result = await paymentService.processPayment(req.body, req.user.id);
+            const io = req.app.get('io');
+            const result = await paymentService.processPayment(req.body, req.user.id, io);
             const statusCode = result.payment.status === 'aprobado' ? 200 : 402;
             return res.status(statusCode).json({
                 success: result.payment.status === 'aprobado',

@@ -1,12 +1,13 @@
 const { Payment, Order } = require('../models');
 const { v4: uuidv4 } = require('uuid');
+const { emitNotification } = require('../sockets/orderSocket');
 
 class PaymentService {
     /**
      * Simula el procesamiento de un pago
      * Genera un transaction_id único y aplica lógica de aprobación/rechazo
      */
-    async processPayment({ orderId, method }, userId) {
+    async processPayment({ orderId, method }, userId, io) {
         // Verificar que la orden existe y pertenece al usuario
         const order = await Order.findOne({ where: { id: orderId, userId } });
         if (!order) {
@@ -51,6 +52,30 @@ class PaymentService {
         // Si se aprueba, actualizar estado de la orden a 'procesando'
         if (isApproved) {
             await order.update({ status: 'procesando' });
+        }
+
+        // Notificar al usuario el resultado del pago
+        if (io) {
+            if (isApproved) {
+                emitNotification(io, `user_${userId}`, 'payment_result',
+                    '¡Pago aprobado!',
+                    `Tu pago de $${order.total} fue aprobado. Tu pedido está en proceso.`,
+                    { orderId, status: 'aprobado', transactionId: payment.transactionId }
+                );
+            } else {
+                emitNotification(io, `user_${userId}`, 'payment_result',
+                    'Pago rechazado',
+                    `Tu pago de $${order.total} fue rechazado. Intenta nuevamente.`,
+                    { orderId, status: 'rechazado' }
+                );
+            }
+
+            // Notificar al admin
+            emitNotification(io, 'admin_channel', 'payment_admin',
+                `Pago ${isApproved ? 'aprobado' : 'rechazado'}`,
+                `Pedido #${orderId} — $${order.total} — ${method} — ${isApproved ? 'APROBADO' : 'RECHAZADO'}.`,
+                { orderId, status, method, amount: order.total }
+            );
         }
 
         return {

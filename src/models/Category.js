@@ -1,3 +1,4 @@
+// Categorías que agrupan y clasifican los productos
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 

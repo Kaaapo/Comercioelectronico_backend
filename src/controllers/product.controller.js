@@ -1,4 +1,5 @@
 const productService = require('../services/product.service');
+const { uploadImage, deleteImage } = require('../services/cloudinary.service');
 const ApiResponse = require('../utils/apiResponse');
 
 class ProductController {
@@ -25,7 +26,13 @@ class ProductController {
 
     async create(req, res, next) {
         try {
-            const product = await productService.create(req.body);
+            const data = { ...req.body };
+
+            if (req.file) {
+                data.imageUrl = await uploadImage(req.file.buffer);
+            }
+
+            const product = await productService.create(data);
             return ApiResponse.created(res, { product }, 'Producto creado exitosamente');
         } catch (error) {
             next(error);
@@ -34,7 +41,18 @@ class ProductController {
 
     async update(req, res, next) {
         try {
-            const product = await productService.update(req.params.id, req.body);
+            const data = { ...req.body };
+
+            if (req.file) {
+                // Si ya tenía imagen, eliminar la anterior de Cloudinary
+                const existing = await productService.getById(req.params.id);
+                if (existing.imageUrl) {
+                    await deleteImage(existing.imageUrl);
+                }
+                data.imageUrl = await uploadImage(req.file.buffer);
+            }
+
+            const product = await productService.update(req.params.id, data);
             return ApiResponse.success(res, { product }, 'Producto actualizado exitosamente');
         } catch (error) {
             next(error);

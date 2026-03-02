@@ -1,3 +1,4 @@
+// Usuarios registrados en la plataforma (clientes y administradores)
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 const bcrypt = require('bcryptjs');
@@ -31,6 +32,31 @@ const User = sequelize.define('User', {
         type: DataTypes.ENUM('customer', 'admin'),
         defaultValue: 'customer',
     },
+    emailVerified: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+        field: 'email_verified',
+    },
+    verificationToken: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        field: 'verification_token',
+    },
+    verificationTokenExpires: {
+        type: DataTypes.DATE,
+        allowNull: true,
+        field: 'verification_token_expires',
+    },
+    resetPasswordToken: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        field: 'reset_password_token',
+    },
+    resetPasswordExpires: {
+        type: DataTypes.DATE,
+        allowNull: true,
+        field: 'reset_password_expires',
+    },
 }, {
     tableName: 'users',
     timestamps: true,
@@ -55,6 +81,10 @@ User.prototype.comparePassword = async function (candidatePassword) {
 User.prototype.toJSON = function () {
     const values = { ...this.get() };
     delete values.password;
+    delete values.verificationToken;
+    delete values.verificationTokenExpires;
+    delete values.resetPasswordToken;
+    delete values.resetPasswordExpires;
     return values;
 };
 

@@ -17,6 +17,7 @@ const seed = async () => {
             email: 'admin@ecommerce.com',
             password: 'admin123',
             role: 'admin',
+            emailVerified: true,
         });
 
         const customer1 = await User.create({
@@ -24,6 +25,7 @@ const seed = async () => {
             email: 'carlos@email.com',
             password: 'password123',
             role: 'customer',
+            emailVerified: true,
         });
 
         const customer2 = await User.create({
@@ -31,6 +33,7 @@ const seed = async () => {
             email: 'maria@email.com',
             password: 'password123',
             role: 'customer',
+            emailVerified: true,
         });
 
         console.log('👥 Usuarios creados');
@@ -79,6 +82,7 @@ const seed = async () => {
         // ==================== ÓRDENES DE EJEMPLO ====================
         const order1 = await Order.create({
             userId: customer1.id,
+            orderNumber: 'PED-000001-SEED01',
             total: 979.98,
             status: 'entregado',
             shippingAddress: 'Av. Principal 456, Bogotá, Colombia',
@@ -99,6 +103,7 @@ const seed = async () => {
 
         const order2 = await Order.create({
             userId: customer1.id,
+            orderNumber: 'PED-000002-SEED02',
             total: 1349.98,
             status: 'enviado',
             shippingAddress: 'Calle 72 #10-50, Bogotá, Colombia',
@@ -119,6 +124,7 @@ const seed = async () => {
 
         const order3 = await Order.create({
             userId: customer2.id,
+            orderNumber: 'PED-000003-SEED03',
             total: 239.97,
             status: 'procesando',
             shippingAddress: 'Carrera 15 #88-12, Medellín, Colombia',

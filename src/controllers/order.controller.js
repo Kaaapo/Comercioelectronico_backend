@@ -4,7 +4,8 @@ const ApiResponse = require('../utils/apiResponse');
 class OrderController {
     async create(req, res, next) {
         try {
-            const order = await orderService.createFromCart(req.user.id, req.body);
+            const io = req.app.get('io');
+            const order = await orderService.createFromCart(req.user.id, req.body, io);
             return ApiResponse.created(res, { order }, 'Orden creada exitosamente');
         } catch (error) {
             next(error);

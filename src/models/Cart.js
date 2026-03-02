@@ -1,3 +1,4 @@
+// Carrito de compras asociado a un usuario (uno por usuario)
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 

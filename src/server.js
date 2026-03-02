@@ -4,7 +4,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 const app = require('./app');
 const { sequelize } = require('./models');
-const setupOrderSocket = require('./sockets/orderSocket');
+const { setupOrderSocket } = require('./sockets/orderSocket');
 
 const PORT = process.env.PORT || 3000;
 
@@ -29,20 +29,20 @@ setupOrderSocket(io);
 const start = async () => {
     try {
         await sequelize.authenticate();
-        console.log('✅ Conexión a PostgreSQL establecida correctamente');
+        console.log(' Conexión a PostgreSQL establecida correctamente');
 
         // Sincronizar modelos (en desarrollo, usar { alter: true } para actualizar)
         await sequelize.sync({ alter: true });
-        console.log('✅ Modelos sincronizados con la base de datos');
+        console.log(' Modelos sincronizados con la base de datos');
 
         server.listen(PORT, () => {
-            console.log(`\n🚀 Servidor corriendo en http://localhost:${PORT}`);
-            console.log(`📚 Documentación API: http://localhost:${PORT}/api/docs`);
-            console.log(`📡 WebSocket: ws://localhost:${PORT}`);
-            console.log(`🔧 Entorno: ${process.env.NODE_ENV || 'development'}\n`);
+            console.log(`\n Servidor corriendo en http://localhost:${PORT}`);
+            console.log(` Documentación API: http://localhost:${PORT}/api/docs`);
+            console.log(` WebSocket: ws://localhost:${PORT}`);
+            console.log(` Entorno: ${process.env.NODE_ENV || 'development'}\n`);
         });
     } catch (error) {
-        console.error('❌ Error al iniciar el servidor:', error);
+        console.error(' Error al iniciar el servidor:', error);
         process.exit(1);
     }
 };

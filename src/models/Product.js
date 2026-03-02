@@ -1,3 +1,4 @@
+// Productos disponibles para la venta en la tienda
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 

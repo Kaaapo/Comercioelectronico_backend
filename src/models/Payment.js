@@ -1,3 +1,4 @@
+// Pago asociado a un pedido: método, monto y estado de la transacción
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 const { v4: uuidv4 } = require('uuid');

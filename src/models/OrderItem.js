@@ -1,3 +1,4 @@
+// Producto individual dentro de una orden (detalle de la orden)
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 

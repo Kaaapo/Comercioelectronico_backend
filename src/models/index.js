@@ -1,3 +1,4 @@
+// Punto central de modelos: importa, define asociaciones y exporta todo
 const sequelize = require('../config/database');
 const User = require('./User');
 const Category = require('./Category');

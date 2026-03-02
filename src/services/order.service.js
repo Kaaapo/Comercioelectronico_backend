@@ -1,7 +1,8 @@
 const { Order, OrderItem, Cart, CartItem, Product, Payment, User, Category, sequelize } = require('../models');
+const { emitNotification } = require('../sockets/orderSocket');
 
 class OrderService {
-    async createFromCart(userId, { shippingAddress }) {
+    async createFromCart(userId, { shippingAddress }, io) {
         const transaction = await sequelize.transaction();
 
         try {
@@ -69,8 +70,25 @@ class OrderService {
 
             await transaction.commit();
 
-            // Retornar orden completa
-            return this.getById(order.id, userId);
+            const fullOrder = await this.getById(order.id, userId);
+
+            // Notificar al usuario que su pedido fue creado
+            if (io) {
+                emitNotification(io, `user_${userId}`, 'order_created',
+                    '¡Pedido creado!',
+                    `Tu pedido #${fullOrder.orderNumber || order.id} por $${order.total} está pendiente de pago.`,
+                    { orderId: order.id, total: order.total, status: 'pendiente' }
+                );
+
+                // Notificar al admin que llegó un nuevo pedido
+                emitNotification(io, 'admin_channel', 'new_order_admin',
+                    'Nuevo pedido recibido',
+                    `El usuario ${fullOrder.user?.name || userId} realizó un pedido de $${order.total}.`,
+                    { orderId: order.id, userId, total: order.total }
+                );
+            }
+
+            return fullOrder;
         } catch (error) {
             await transaction.rollback();
             throw error;
@@ -185,14 +203,13 @@ class OrderService {
         const previousStatus = order.status;
         await order.update({ status });
 
-        // Emitir evento WebSocket al usuario
+        // Emitir notificación WebSocket al usuario
         if (io) {
-            io.to(`user_${order.userId}`).emit('order:statusUpdated', {
-                orderId: order.id,
-                previousStatus,
-                newStatus: status,
-                updatedAt: new Date(),
-            });
+            emitNotification(io, `user_${order.userId}`, 'order_status_updated',
+                'Estado de tu pedido actualizado',
+                `Tu pedido #${order.orderNumber || order.id} cambió de "${previousStatus}" a "${status}".`,
+                { orderId: order.id, previousStatus, newStatus: status }
+            );
         }
 
         return order.reload({
