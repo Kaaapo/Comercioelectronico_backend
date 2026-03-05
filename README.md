@@ -2,41 +2,46 @@
 
 API REST para plataforma de comercio electrónico desarrollada con **Node.js**, **Express** y **PostgreSQL**.
 
+## Despliegue
+
+| Servicio | URL |
+|---|---|
+| **Backend (Railway)** | https://comercioelectronicobackend-production.up.railway.app |
+| **Documentación Swagger** | https://comercioelectronicobackend-production.up.railway.app/api/docs |
+| **Base de datos (Neon)** | PostgreSQL cloud - Neon |
+
 ## Tecnologías
 
 | Tecnología | Uso |
 |---|---|
 | Node.js + Express | Framework backend |
-| PostgreSQL | Base de datos relacional |
+| PostgreSQL (Neon) | Base de datos en la nube |
 | Sequelize | ORM |
 | JWT | Autenticación |
 | Socket.IO | Notificaciones en tiempo real |
 | Swagger | Documentación de API |
-| Docker | Infraestructura local |
 | Cloudinary | Almacenamiento de imágenes de productos |
 | Nodemailer | Envío de correos transaccionales (Gmail) |
+| Helmet + Rate-limit | Seguridad HTTP |
+| Railway | Despliegue del backend |
 
-## Instalación y Configuración
+## Instalación y Configuración Local
 
 ### 1. Requisitos Previos
 - [Node.js](https://nodejs.org/) v18+
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 
-### 2. Levantar la Base de Datos
-```bash
-docker-compose up -d
-```
-Esto levanta:
-- **PostgreSQL** en `localhost:5433`
-- **pgAdmin** en `http://localhost:5050` (admin@ecommerce.com / admin123)
-
-### 3. Instalar Dependencias
+### 2. Instalar Dependencias
 ```bash
 npm install
 ```
 
-### 4. Configurar Variables de Entorno
-Crea un archivo `.env` en la raíz del proyecto con las siguientes variables:
+### 3. Configurar Variables de Entorno
+Copia el archivo `.env.example` y renómbralo a `.env`:
+```bash
+cp .env.example .env
+```
+
+Edita el `.env` con tus credenciales. Las variables principales son:
 
 ```env
 # Servidor
@@ -44,38 +49,28 @@ PORT=3000
 NODE_ENV=development
 APP_URL=http://localhost:3000
 
-# Base de Datos
-DB_HOST=localhost
-DB_PORT=5433
-DB_NAME=ecommerce_db
-DB_USER=ecommerce_user
-DB_PASSWORD=ecommerce_pass_2026
+# Base de Datos (Neon cloud)
+DB_HOST=tu-host.neon.tech
+DB_PORT=5432
+DB_NAME=neondb
+DB_USER=neondb_owner
+DB_PASSWORD=tu_password
+DB_SSL=true
 
 # JWT
-JWT_SECRET=tu_secreto_jwt
+JWT_SECRET=cadena_aleatoria_larga_y_segura
 JWT_EXPIRES_IN=24h
-
-# Pasarela de Pagos (Simulación)
-PAYMENT_APPROVAL_RATE=80
-
-# Cloudinary (subida de imágenes de productos)
-CLOUDINARY_CLOUD_NAME=tu_cloud_name
-CLOUDINARY_API_KEY=tu_api_key
-CLOUDINARY_API_SECRET=tu_api_secret
-
-# Email (Nodemailer - Gmail)
-EMAIL_USER=tu_correo@gmail.com
-EMAIL_PASS=tu_contrasena_de_aplicacion
 ```
 
 > Para `EMAIL_PASS` usa una **Contraseña de aplicación** de Google (no tu contraseña normal). Actívala en: Google Account → Seguridad → Verificación en 2 pasos → Contraseñas de aplicaciones.
 
-### 5. Ejecutar el Seed (Datos de Prueba)
+### 4. Ejecutar el Seed (Datos de Prueba)
 ```bash
 npm run seed
 ```
+> ⚠️ El seed usa `force: true` — borra y recrea todas las tablas. No ejecutar en producción con datos reales.
 
-### 6. Iniciar el Servidor
+### 5. Iniciar el Servidor
 ```bash
 npm run dev
 ```
@@ -84,11 +79,20 @@ El servidor arrancará en `http://localhost:3000`
 
 ## Documentación API
 
-Una vez el servidor esté corriendo, accede a la documentación interactiva de Swagger:
+Swagger disponible en producción (sin necesidad de correr el servidor localmente):
 
-**http://localhost:3000/api/docs**
+**https://comercioelectronicobackend-production.up.railway.app/api/docs**
 
 También puedes importar los endpoints en **Postman** o usar cURL.
+
+## Para el Frontend Developer
+
+Solo necesitas esta variable en tu `.env` de Vue:
+```env
+VITE_API_URL=https://comercioelectronicobackend-production.up.railway.app
+```
+
+No necesitas instalar ni correr el backend localmente.
 
 ## Credenciales de Prueba
 
@@ -235,22 +239,25 @@ socket.on('notification', (data) => {
 
 ```
 src/
-├── app.js                   # Express + Swagger setup
+├── app.js                   # Express + Swagger + seguridad (helmet, rate-limit, cors)
 ├── server.js                # Entry point + Socket.IO
-├── config/database.js       # Sequelize config
+├── config/database.js       # Sequelize config (SSL condicional para Neon)
 ├── middlewares/
-│   ├── auth.js              # JWT verification
-│   ├── role.js              # Role-based access
-│   └── errorHandler.js      # Error handling + validation
-├── models/                  # 8 modelos Sequelize
+│   ├── auth.js              # JWT verification (HS256 restringido)
+│   ├── role.js              # Role-based access (admin/customer)
+│   └── errorHandler.js      # Error handling seguro (sin stack trace en producción)
+├── models/                  # 10 modelos Sequelize (User, Product, Category, Cart,
+│                            # CartItem, Order, OrderItem, Payment, Review, Return)
 ├── services/
-│   ├── auth.service.js      # Registro, login, verificación
+│   ├── auth.service.js      # Registro, login, perfil, verificación, recuperación
 │   ├── cloudinary.service.js# Subida y eliminación de imágenes
 │   ├── email.service.js     # Correos de verificación y recuperación
 │   ├── cart.service.js
 │   ├── order.service.js
 │   ├── payment.service.js
 │   ├── product.service.js
+│   ├── review.service.js    # Reseñas y calificaciones
+│   ├── return.service.js    # Devoluciones con flujo de estados
 │   └── dashboard.service.js
 ├── controllers/             # Request handlers
 ├── routes/                  # Express Router + Swagger docs
