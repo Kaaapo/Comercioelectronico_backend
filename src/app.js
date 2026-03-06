@@ -116,12 +116,16 @@ const swaggerOptions = {
 };
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
-app.use('/api/docs', (req, res, next) => {
-    if (req.query.key !== process.env.DOCS_API_KEY) {
-        return res.status(403).json({ success: false, message: 'Forbidden' });
+const swaggerDocsGuard = (req, res, next) => {
+    // Permitir assets estáticos (CSS, JS, imágenes) pero verificar la clave en la página principal
+    if (req.path === '/' || req.path === '') {
+        if (req.query.key !== process.env.DOCS_API_KEY) {
+            return res.status(403).json({ success: false, message: 'Forbidden' });
+        }
     }
     next();
-}, swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+};
+app.use('/api/docs', swaggerDocsGuard, swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
     customCss: '.swagger-ui .topbar { display: none }',
     customSiteTitle: 'API E-Commerce - Docs',
 }));
