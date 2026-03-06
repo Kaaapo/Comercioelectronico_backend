@@ -21,6 +21,8 @@ const returnRoutes = require('./routes/return.routes');
 
 // Middleware
 const { errorHandler } = require('./middlewares/errorHandler');
+const auth = require('./middlewares/auth');
+const role = require('./middlewares/role');
 
 const app = express();
 
@@ -116,7 +118,7 @@ const swaggerOptions = {
 };
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
-app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+app.use('/api/docs', auth, role('admin'), swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
     customCss: '.swagger-ui .topbar { display: none }',
     customSiteTitle: 'API E-Commerce - Docs',
 }));
