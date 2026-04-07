@@ -1,3 +1,6 @@
+> [!IMPORTANT]
+> Proyecto en desarrollo
+
 # Comercio Electrónico - Backend API
 
 API REST para plataforma de comercio electrónico desarrollada con **Node.js**, **Express** y **PostgreSQL**.
