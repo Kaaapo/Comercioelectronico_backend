@@ -73,55 +73,60 @@ const seed = async () => {
         // ==================== CATEGORÍAS ====================
         const categories = await Category.bulkCreate([
             {
-                name: 'Electrónica',
-                description: 'Dispositivos electrónicos y gadgets',
-                imageUrl: 'https://via.placeholder.com/400x400?text=Categoria+Electronica',
+                name: 'Ratones Gamer',
+                description: 'Ratones, mouse y periféricos de precisión para gaming',
+                imageUrl: 'https://via.placeholder.com/400x400?text=Ratones+Gamer',
             },
             {
-                name: 'Ropa',
-                description: 'Ropa y accesorios de moda',
-                imageUrl: 'https://via.placeholder.com/400x400?text=Categoria+Ropa',
+                name: 'Teclados Gamer',
+                description: 'Teclados mecánicos, compactos y full-size para gaming',
+                imageUrl: 'https://via.placeholder.com/400x400?text=Teclados+Gamer',
             },
             {
-                name: 'Hogar',
-                description: 'Artículos para el hogar y decoración',
-                imageUrl: 'https://via.placeholder.com/400x400?text=Categoria+Hogar',
+                name: 'Auriculares Gamer',
+                description: 'Auriculares alámbricos e inalámbricos para juego competitivo',
+                imageUrl: 'https://via.placeholder.com/400x400?text=Auriculares+Gamer',
             },
             {
-                name: 'Deportes',
-                description: 'Equipo y ropa deportiva',
-                imageUrl: 'https://via.placeholder.com/400x400?text=Categoria+Deportes',
+                name: 'Mousepads',
+                description: 'Superficies de control para ratón en distintos tamaños y texturas',
+                imageUrl: 'https://via.placeholder.com/400x400?text=Mousepads',
             },
             {
-                name: 'Libros',
-                description: 'Libros físicos y digitales',
-                imageUrl: 'https://via.placeholder.com/400x400?text=Categoria+Libros',
+                name: 'Monitores Gamer',
+                description: 'Monitores de alta tasa de refresco y baja latencia',
+                imageUrl: 'https://via.placeholder.com/400x400?text=Monitores+Gamer',
+            },
+            {
+                name: 'Celulares',
+                description: 'Smartphones y accesorios de alto rendimiento',
+                imageUrl: 'https://via.placeholder.com/400x400?text=Celulares',
+            },
+            {
+                name: 'Accesorios Gamer',
+                description: 'Accesorios complementarios para setups gamers',
+                imageUrl: 'https://via.placeholder.com/400x400?text=Accesorios+Gamer',
             },
         ]);
         console.log('📂 Categorías creadas');
 
         // ==================== PRODUCTOS ====================
         const products = await Product.bulkCreate([
-            // Electrónica
-            { name: 'Smartphone XPro 15', description: 'Teléfono inteligente de última generación con cámara de 108MP', price: 899.99, stock: 50, categoryId: categories[0].id, imageUrl: 'https://via.placeholder.com/400x400?text=Smartphone', featured: true },
-            { name: 'Laptop UltraBook 14"', description: 'Laptop ultradelgada con procesador i7 y 16GB RAM', price: 1299.99, stock: 30, categoryId: categories[0].id, imageUrl: 'https://via.placeholder.com/400x400?text=Laptop', featured: true },
-            { name: 'Auriculares Bluetooth Pro', description: 'Auriculares inalámbricos con cancelación de ruido activa', price: 149.99, stock: 100, categoryId: categories[0].id, imageUrl: 'https://via.placeholder.com/400x400?text=Auriculares' },
-            { name: 'Tablet 10"', description: 'Tablet con pantalla retina y 128GB de almacenamiento', price: 449.99, stock: 40, categoryId: categories[0].id, imageUrl: 'https://via.placeholder.com/400x400?text=Tablet' },
-            // Ropa
-            { name: 'Camiseta Premium Algodón', description: 'Camiseta de algodón orgánico 100%, varios colores', price: 29.99, stock: 200, categoryId: categories[1].id, imageUrl: 'https://via.placeholder.com/400x400?text=Camiseta' },
-            { name: 'Jeans Clásico', description: 'Jeans de corte recto con lavado clásico', price: 59.99, stock: 150, categoryId: categories[1].id, imageUrl: 'https://via.placeholder.com/400x400?text=Jeans' },
-            { name: 'Zapatillas Running', description: 'Zapatillas deportivas con amortiguación avanzada', price: 89.99, stock: 80, categoryId: categories[1].id, imageUrl: 'https://via.placeholder.com/400x400?text=Zapatillas' },
-            // Hogar
-            { name: 'Lámpara LED Inteligente', description: 'Lámpara WiFi compatible con Alexa y Google Home', price: 39.99, stock: 120, categoryId: categories[2].id, imageUrl: 'https://via.placeholder.com/400x400?text=Lampara' },
-            { name: 'Juego de Sábanas Queen', description: 'Sábanas de microfibra hipoalergénica 1800TC', price: 49.99, stock: 60, categoryId: categories[2].id, imageUrl: 'https://via.placeholder.com/400x400?text=Sabanas' },
-            // Deportes
-            { name: 'Mancuernas Ajustables 20kg', description: 'Par de mancuernas ajustables de 2 a 20kg', price: 129.99, stock: 45, categoryId: categories[3].id, imageUrl: 'https://via.placeholder.com/400x400?text=Mancuernas' },
-            { name: 'Esterilla Yoga Premium', description: 'Esterilla antideslizante de 6mm de grosor', price: 34.99, stock: 90, categoryId: categories[3].id, imageUrl: 'https://via.placeholder.com/400x400?text=Esterilla' },
-            // Libros
-            { name: 'Clean Code', description: 'Robert C. Martin - A Handbook of Agile Software Craftsmanship', price: 39.99, stock: 70, categoryId: categories[4].id, imageUrl: 'https://via.placeholder.com/400x400?text=CleanCode' },
-            { name: 'Design Patterns', description: 'Gang of Four - Elements of Reusable Object-Oriented Software', price: 44.99, stock: 55, categoryId: categories[4].id, imageUrl: 'https://via.placeholder.com/400x400?text=DesignPatterns' },
-            { name: 'Producto Agotado Test', description: 'Producto de prueba sin stock', price: 9.99, stock: 0, categoryId: categories[4].id, imageUrl: 'https://via.placeholder.com/400x400?text=SinStock' },
-            { name: 'Producto Stock Bajo', description: 'Producto con stock bajo para pruebas de dashboard', price: 19.99, stock: 3, categoryId: categories[2].id, imageUrl: 'https://via.placeholder.com/400x400?text=StockBajo' },
+            { name: 'Mouse Gamer Logitech G502 X', description: 'Mouse gamer con sensor de alta precisión y switches híbridos óptico-mecánicos.', brand: 'Logitech', color: 'Negro', price: 89.99, stock: 75, categoryId: categories[0].id, imageUrl: 'https://via.placeholder.com/800x800?text=Mouse+G502X', featured: true },
+            { name: 'Mouse Gamer Razer DeathAdder V3', description: 'Mouse ergonómico gamer ultraligero con polling rate avanzado.', brand: 'Razer', color: 'Negro', price: 99.99, stock: 60, categoryId: categories[0].id, imageUrl: 'https://via.placeholder.com/800x800?text=DeathAdder+V3', featured: true },
+            { name: 'Teclado Mecánico HyperX Alloy Origins', description: 'Teclado mecánico compacto con iluminación RGB y switches lineales.', brand: 'HyperX', color: 'Negro', price: 129.99, stock: 40, categoryId: categories[1].id, imageUrl: 'https://via.placeholder.com/800x800?text=HyperX+Alloy', featured: true },
+            { name: 'Teclado Mecánico Redragon K552', description: 'Teclado mecánico 60% ideal para gaming competitivo.', brand: 'Redragon', color: 'Blanco', price: 59.99, stock: 90, categoryId: categories[1].id, imageUrl: 'https://via.placeholder.com/800x800?text=Redragon+K552', featured: false },
+            { name: 'Auriculares Inalámbricos Logitech G733', description: 'Auriculares inalámbricos con sonido envolvente y micrófono desmontable.', brand: 'Logitech', color: 'Azul', price: 159.99, stock: 35, categoryId: categories[2].id, imageUrl: 'https://via.placeholder.com/800x800?text=Logitech+G733', featured: true },
+            { name: 'Auriculares HyperX Cloud II', description: 'Auriculares con sonido 7.1 virtual y gran aislamiento de ruido.', brand: 'HyperX', color: 'Rojo', price: 99.99, stock: 50, categoryId: categories[2].id, imageUrl: 'https://via.placeholder.com/800x800?text=HyperX+Cloud+II', featured: false },
+            { name: 'Mousepad XL SteelSeries QcK', description: 'Mousepad de gran formato optimizado para control y velocidad.', brand: 'SteelSeries', color: 'Negro', price: 29.99, stock: 120, categoryId: categories[3].id, imageUrl: 'https://via.placeholder.com/800x800?text=SteelSeries+QcK', featured: false },
+            { name: 'Mousepad Razer Gigantus V2', description: 'Superficie texturizada con base antideslizante para gaming competitivo.', brand: 'Razer', color: 'Negro', price: 34.99, stock: 95, categoryId: categories[3].id, imageUrl: 'https://via.placeholder.com/800x800?text=Gigantus+V2', featured: false },
+            { name: 'Monitor Gamer Samsung Odyssey G5', description: 'Monitor curvo QHD con 144Hz y 1ms de respuesta.', brand: 'Samsung', color: 'Negro', price: 349.99, stock: 28, categoryId: categories[4].id, imageUrl: 'https://via.placeholder.com/800x800?text=Odyssey+G5', featured: true },
+            { name: 'Monitor Gamer ASUS TUF VG27AQ', description: 'Monitor IPS 165Hz con sincronización adaptativa.', brand: 'ASUS', color: 'Negro', price: 399.99, stock: 22, categoryId: categories[4].id, imageUrl: 'https://via.placeholder.com/800x800?text=ASUS+TUF+VG27AQ', featured: true },
+            { name: 'Celular Samsung Galaxy S24', description: 'Smartphone de alto rendimiento con pantalla AMOLED y cámara avanzada.', brand: 'Samsung', color: 'Gris', price: 899.99, stock: 45, categoryId: categories[5].id, imageUrl: 'https://via.placeholder.com/800x800?text=Galaxy+S24', featured: true },
+            { name: 'Celular Xiaomi 14T Pro', description: 'Celular potente para gaming móvil con carga rápida.', brand: 'Xiaomi', color: 'Negro', price: 749.99, stock: 38, categoryId: categories[5].id, imageUrl: 'https://via.placeholder.com/800x800?text=Xiaomi+14T+Pro', featured: false },
+            { name: 'Micrófono USB HyperX SoloCast', description: 'Micrófono condensador USB para streaming y comunicación en partidas.', brand: 'HyperX', color: 'Negro', price: 69.99, stock: 55, categoryId: categories[6].id, imageUrl: 'https://via.placeholder.com/800x800?text=SoloCast', featured: false },
+            { name: 'Webcam Logitech C922 Pro', description: 'Webcam Full HD ideal para streaming gamer.', brand: 'Logitech', color: 'Negro', price: 119.99, stock: 33, categoryId: categories[6].id, imageUrl: 'https://via.placeholder.com/800x800?text=Logitech+C922', featured: false },
+            { name: 'Silla Gamer Cougar Armor One', description: 'Silla gamer ergonómica con soporte lumbar y reposabrazos ajustables.', brand: 'Cougar', color: 'Naranja', price: 239.99, stock: 14, categoryId: categories[6].id, imageUrl: 'https://via.placeholder.com/800x800?text=Cougar+Armor+One', featured: false },
         ]);
         console.log('📦 Productos creados');
 
@@ -160,7 +165,7 @@ const seed = async () => {
         const order1 = await Order.create({
             userId: customer1.id,
             orderNumber: 'PED-000001-SEED01',
-            total: 979.98,
+            total: 1219.97,
             status: 'entregado',
             shippingAddress: 'Av. Principal 456, Bogotá, Colombia',
         });
@@ -172,7 +177,7 @@ const seed = async () => {
 
         await Payment.create({
             orderId: order1.id,
-            amount: 979.98,
+            amount: 1219.97,
             method: 'tarjeta',
             status: 'aprobado',
             transactionId: 'TXN-SEED-001',
@@ -181,19 +186,19 @@ const seed = async () => {
         const order2 = await Order.create({
             userId: customer1.id,
             orderNumber: 'PED-000002-SEED02',
-            total: 1349.98,
+            total: 429.98,
             status: 'enviado',
             shippingAddress: 'Calle 72 #10-50, Bogotá, Colombia',
         });
 
         await OrderItem.bulkCreate([
-            { orderId: order2.id, productId: products[1].id, quantity: 1, unitPrice: 1299.99 },
-            { orderId: order2.id, productId: products[7].id, quantity: 1, unitPrice: 39.99 },
+            { orderId: order2.id, productId: products[8].id, quantity: 1, unitPrice: 349.99 },
+            { orderId: order2.id, productId: products[6].id, quantity: 1, unitPrice: 29.99 },
         ]);
 
         await Payment.create({
             orderId: order2.id,
-            amount: 1349.98,
+            amount: 429.98,
             method: 'paypal',
             status: 'aprobado',
             transactionId: 'TXN-SEED-002',
@@ -202,19 +207,20 @@ const seed = async () => {
         const order3 = await Order.create({
             userId: customer2.id,
             orderNumber: 'PED-000003-SEED03',
-            total: 239.97,
+            total: 319.97,
             status: 'procesando',
             shippingAddress: 'Carrera 15 #88-12, Medellín, Colombia',
         });
 
         await OrderItem.bulkCreate([
-            { orderId: order3.id, productId: products[5].id, quantity: 1, unitPrice: 59.99 },
-            { orderId: order3.id, productId: products[6].id, quantity: 2, unitPrice: 89.99 },
+            { orderId: order3.id, productId: products[5].id, quantity: 1, unitPrice: 99.99 },
+            { orderId: order3.id, productId: products[6].id, quantity: 2, unitPrice: 29.99 },
+            { orderId: order3.id, productId: products[13].id, quantity: 1, unitPrice: 119.99 },
         ]);
 
         await Payment.create({
             orderId: order3.id,
-            amount: 239.97,
+            amount: 319.97,
             method: 'transferencia',
             status: 'aprobado',
             transactionId: 'TXN-SEED-003',
