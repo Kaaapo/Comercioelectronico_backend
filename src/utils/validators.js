@@ -113,6 +113,8 @@ const validators = {
     createProduct: [
         body('name').trim().notEmpty().withMessage('El nombre del producto es requerido'),
         body('description').optional().trim(),
+        body('brand').optional().trim().notEmpty().withMessage('La marca no puede estar vacía'),
+        body('color').optional().trim().notEmpty().withMessage('El color no puede estar vacío'),
         body('price')
             .isFloat({ min: 0.01 })
             .withMessage('El precio debe ser mayor a 0'),
@@ -132,6 +134,8 @@ const validators = {
     updateProduct: [
         param('id').isInt().withMessage('ID de producto inválido'),
         body('name').optional().trim().notEmpty().withMessage('El nombre no puede estar vacío'),
+        body('brand').optional().trim().notEmpty().withMessage('La marca no puede estar vacía'),
+        body('color').optional().trim().notEmpty().withMessage('El color no puede estar vacío'),
         body('price')
             .optional()
             .isFloat({ min: 0.01 })

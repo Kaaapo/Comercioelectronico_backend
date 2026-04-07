@@ -6,7 +6,7 @@ class ProductService {
         return Object.fromEntries(Object.entries(payload).filter(([, value]) => typeof value !== 'undefined'));
     }
 
-    async getAll({ page = 1, limit = 10, search, categoryId, minPrice, maxPrice, featured }) {
+    async getAll({ page = 1, limit = 10, search, categoryId, minPrice, maxPrice, featured, brand, color }) {
         const offset = (page - 1) * limit;
         const where = { active: true };
 
@@ -26,6 +26,14 @@ class ProductService {
 
         if (typeof featured !== 'undefined') {
             where.featured = `${featured}` === 'true';
+        }
+
+        if (brand) {
+            where.brand = { [Op.iLike]: `%${brand}%` };
+        }
+
+        if (color) {
+            where.color = { [Op.iLike]: `%${color}%` };
         }
 
         const { count, rows } = await Product.findAndCountAll({
@@ -86,6 +94,8 @@ class ProductService {
             const productPayload = {
                 name: data.name,
                 description: data.description,
+                brand: data.brand,
+                color: data.color,
                 price: data.price,
                 stock: data.stock,
                 categoryId: data.categoryId,
@@ -146,6 +156,8 @@ class ProductService {
             const payload = {
                 name: data.name,
                 description: data.description,
+                brand: data.brand,
+                color: data.color,
                 price: data.price,
                 stock: data.stock,
                 categoryId: data.categoryId,

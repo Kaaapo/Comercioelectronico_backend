@@ -19,6 +19,14 @@ const Product = sequelize.define('Product', {
         type: DataTypes.TEXT,
         allowNull: true,
     },
+    brand: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    color: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
     price: {
         type: DataTypes.DECIMAL(10, 2),
         allowNull: false,

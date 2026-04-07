@@ -13,6 +13,8 @@ class ProductController {
                 minPrice,
                 maxPrice,
                 featured,
+                brand,
+                color,
             } = req.query;
             const { products, total } = await productService.getAll({
                 page,
@@ -22,6 +24,8 @@ class ProductController {
                 minPrice,
                 maxPrice,
                 featured,
+                brand,
+                color,
             });
             return ApiResponse.paginated(res, products, total, page, limit, 'Productos obtenidos');
         } catch (error) {

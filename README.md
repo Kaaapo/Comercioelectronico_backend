@@ -78,11 +78,15 @@ Si ya tienes datos en producción, usa este flujo incremental (idempotente y sin
 
 ```bash
 npm run migrate:features
+npm run migrate:brand-color
+npm run seed:gamer-catalog
 npm run seed:features
 ```
 
 Qué hace este flujo:
 - Crea/agrega estructuras nuevas (`featured`, `product_images`, `wishlists`, `categories.image_url`) sin destruir datos.
+- Agrega atributos de catálogo (`brand`, `color`) para productos en producción.
+- Sincroniza catálogo gamer/electrónico y desactiva productos fuera del enfoque.
 - Hace backfill de datos existentes (imagen principal de producto, imagen de categoría si faltaba).
 - Crea datos incrementales de prueba sin duplicados (favoritos e imágenes secundarias).
 
@@ -141,6 +145,8 @@ No necesitas instalar ni correr el backend localmente.
 
 Filtro nuevo en catálogo:
 - `GET /api/products?featured=true` devuelve solo productos destacados.
+- `GET /api/products?brand=logitech` filtra por marca.
+- `GET /api/products?color=negro` filtra por color.
 
 ### Categorías
 | Método | Endpoint | Auth | Descripción |

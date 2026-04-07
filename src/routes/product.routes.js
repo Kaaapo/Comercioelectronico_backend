@@ -12,7 +12,7 @@ const router = Router();
  * @swagger
  * /api/products:
  *   get:
- *     summary: Listar productos con filtros y paginación
+ *     summary: Listar productos gamer/electrónicos con filtros y paginación
  *     tags: [Productos]
  *     parameters:
  *       - in: query
@@ -50,6 +50,16 @@ const router = Router();
  *         schema:
  *           type: boolean
  *         description: Filtrar por productos destacados
+ *       - in: query
+ *         name: brand
+ *         schema:
+ *           type: string
+ *         description: Filtrar por marca (ej. Logitech, Razer, HyperX)
+ *       - in: query
+ *         name: color
+ *         schema:
+ *           type: string
+ *         description: Filtrar por color (ej. Negro, Blanco, Azul)
  *     responses:
  *       200:
  *         description: Lista de productos
@@ -106,6 +116,12 @@ router.get('/:id', validators.paramId, validate, productController.getById);
  *                 type: string
  *               description:
  *                 type: string
+ *               brand:
+ *                 type: string
+ *                 example: Logitech
+ *               color:
+ *                 type: string
+ *                 example: Negro
  *               price:
  *                 type: number
  *               stock:
@@ -167,6 +183,12 @@ router.post(
  *                 type: string
  *               description:
  *                 type: string
+ *               brand:
+ *                 type: string
+ *                 example: Razer
+ *               color:
+ *                 type: string
+ *                 example: Blanco
  *               price:
  *                 type: number
  *               stock:

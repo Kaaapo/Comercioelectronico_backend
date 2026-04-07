@@ -12,7 +12,7 @@ const router = Router();
  * @swagger
  * /api/categories:
  *   get:
- *     summary: Listar todas las categorías
+ *     summary: Listar categorías gamer/electrónicas
  *     tags: [Categorías]
  *     responses:
  *       200:
@@ -44,7 +44,7 @@ router.get('/:id', validators.paramId, validate, categoryController.getById);
  * @swagger
  * /api/categories:
  *   post:
- *     summary: Crear categoría (Solo admin)
+ *     summary: Crear categoría gamer/electrónica (Solo admin)
  *     tags: [Categorías]
  *     security:
  *       - bearerAuth: []
@@ -73,7 +73,7 @@ router.post('/', auth, role('admin'), upload.single('image'), validators.createC
  * @swagger
  * /api/categories/{id}:
  *   put:
- *     summary: Actualizar categoría (Solo admin)
+ *     summary: Actualizar categoría gamer/electrónica (Solo admin)
  *     tags: [Categorías]
  *     security:
  *       - bearerAuth: []
@@ -110,6 +110,17 @@ router.put('/:id', auth, role('admin'), upload.single('image'), validators.param
  *     tags: [Categorías]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Categoría eliminada
+ *       404:
+ *         description: Categoría no encontrada
  */
 router.delete('/:id', auth, role('admin'), validators.paramId, validate, categoryController.delete);
 
