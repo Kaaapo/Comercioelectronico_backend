@@ -45,6 +45,11 @@ const router = Router();
  *         schema:
  *           type: number
  *         description: Precio máximo
+ *       - in: query
+ *         name: featured
+ *         schema:
+ *           type: boolean
+ *         description: Filtrar por productos destacados
  *     responses:
  *       200:
  *         description: Lista de productos
@@ -87,10 +92,16 @@ router.get('/:id', validators.paramId, validate, productController.getById);
  *             type: object
  *             required: [name, price, stock, categoryId]
  *             properties:
+ *               images:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *                 description: Hasta 10 imágenes del producto
  *               image:
  *                 type: string
  *                 format: binary
- *                 description: Imagen del producto (jpg, png, webp - máx 5MB)
+ *                 description: Imagen única (compatibilidad)
  *               name:
  *                 type: string
  *               description:
@@ -101,13 +112,26 @@ router.get('/:id', validators.paramId, validate, productController.getById);
  *                 type: integer
  *               categoryId:
  *                 type: integer
+ *               featured:
+ *                 type: boolean
  *     responses:
  *       201:
  *         description: Producto creado
  *       403:
  *         description: Sin permisos
  */
-router.post('/', auth, role('admin'), upload.single('image'), validators.createProduct, validate, productController.create);
+router.post(
+	'/',
+	auth,
+	role('admin'),
+	upload.fields([
+		{ name: 'images', maxCount: 10 },
+		{ name: 'image', maxCount: 1 },
+	]),
+	validators.createProduct,
+	validate,
+	productController.create,
+);
 
 /**
  * @swagger
@@ -129,10 +153,16 @@ router.post('/', auth, role('admin'), upload.single('image'), validators.createP
  *           schema:
  *             type: object
  *             properties:
+ *               images:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *                 description: Reemplaza las imágenes actuales (máx 10)
  *               image:
  *                 type: string
  *                 format: binary
- *                 description: Nueva imagen del producto (reemplaza la anterior)
+ *                 description: Nueva imagen única (compatibilidad)
  *               name:
  *                 type: string
  *               description:
@@ -145,11 +175,24 @@ router.post('/', auth, role('admin'), upload.single('image'), validators.createP
  *                 type: integer
  *               active:
  *                 type: boolean
+ *               featured:
+ *                 type: boolean
  *     responses:
  *       200:
  *         description: Producto actualizado
  */
-router.put('/:id', auth, role('admin'), upload.single('image'), validators.updateProduct, validate, productController.update);
+router.put(
+	'/:id',
+	auth,
+	role('admin'),
+	upload.fields([
+		{ name: 'images', maxCount: 10 },
+		{ name: 'image', maxCount: 1 },
+	]),
+	validators.updateProduct,
+	validate,
+	productController.update,
+);
 
 /**
  * @swagger

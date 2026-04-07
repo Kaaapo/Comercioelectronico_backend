@@ -1,4 +1,5 @@
 const { Category } = require('../models');
+const { uploadImage, deleteImage } = require('../services/cloudinary.service');
 const ApiResponse = require('../utils/apiResponse');
 
 class CategoryController {
@@ -27,7 +28,17 @@ class CategoryController {
 
     async create(req, res, next) {
         try {
-            const category = await Category.create(req.body);
+            if (!req.file) {
+                return ApiResponse.error(res, 'La imagen de la categoría es requerida', 400);
+            }
+
+            const imageUrl = await uploadImage(req.file.buffer, null, 'categories');
+            const payload = {
+                ...req.body,
+                imageUrl,
+            };
+
+            const category = await Category.create(payload);
             return ApiResponse.created(res, { category }, 'Categoría creada exitosamente');
         } catch (error) {
             next(error);
@@ -40,7 +51,16 @@ class CategoryController {
             if (!category) {
                 return ApiResponse.error(res, 'Categoría no encontrada', 404);
             }
-            await category.update(req.body);
+
+            const payload = { ...req.body };
+            if (req.file) {
+                if (category.imageUrl) {
+                    await deleteImage(category.imageUrl);
+                }
+                payload.imageUrl = await uploadImage(req.file.buffer, null, 'categories');
+            }
+
+            await category.update(payload);
             return ApiResponse.success(res, { category }, 'Categoría actualizada exitosamente');
         } catch (error) {
             next(error);

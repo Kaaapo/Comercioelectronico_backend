@@ -4,6 +4,7 @@ const auth = require('../middlewares/auth');
 const role = require('../middlewares/role');
 const { validate } = require('../middlewares/errorHandler');
 const validators = require('../utils/validators');
+const { upload } = require('../services/cloudinary.service');
 
 const router = Router();
 
@@ -50,20 +51,23 @@ router.get('/:id', validators.paramId, validate, categoryController.getById);
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
- *             required: [name]
+ *             required: [name, image]
  *             properties:
  *               name:
  *                 type: string
  *               description:
  *                 type: string
+ *               image:
+ *                 type: string
+ *                 format: binary
  *     responses:
  *       201:
  *         description: Categoría creada
  */
-router.post('/', auth, role('admin'), validators.createCategory, validate, categoryController.create);
+router.post('/', auth, role('admin'), upload.single('image'), validators.createCategory, validate, categoryController.create);
 
 /**
  * @swagger
@@ -73,8 +77,30 @@ router.post('/', auth, role('admin'), validators.createCategory, validate, categ
  *     tags: [Categorías]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Categoría actualizada
  */
-router.put('/:id', auth, role('admin'), validators.paramId, validate, categoryController.update);
+router.put('/:id', auth, role('admin'), upload.single('image'), validators.paramId, validate, categoryController.update);
 
 /**
  * @swagger

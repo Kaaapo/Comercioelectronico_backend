@@ -27,12 +27,13 @@ const upload = multer({
  * Sube un buffer de imagen a Cloudinary y retorna la URL segura.
  * @param {Buffer} buffer - Buffer del archivo
  * @param {string} [publicId] - ID público existente (para reemplazar imagen anterior)
+ * @param {string} [folder='products'] - Carpeta destino en Cloudinary
  * @returns {Promise<string>} URL de la imagen subida
  */
-const uploadImage = (buffer, publicId = null) => {
+const uploadImage = (buffer, publicId = null, folder = 'products') => {
     return new Promise((resolve, reject) => {
         const options = {
-            folder: 'products',
+            folder,
             resource_type: 'image',
             transformation: [
                 { width: 800, height: 800, crop: 'limit' }, // Redimensiona sin distorsionar

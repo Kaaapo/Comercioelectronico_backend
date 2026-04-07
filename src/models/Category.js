@@ -20,6 +20,14 @@ const Category = sequelize.define('Category', {
         type: DataTypes.TEXT,
         allowNull: true,
     },
+    imageUrl: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        field: 'image_url',
+        validate: {
+            notEmpty: { msg: 'La imagen de la categoría es requerida' },
+        },
+    },
 }, {
     tableName: 'categories',
     timestamps: true,

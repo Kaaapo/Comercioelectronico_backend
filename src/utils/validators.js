@@ -122,6 +122,10 @@ const validators = {
         body('categoryId')
             .isInt({ min: 1 })
             .withMessage('La categoría es requerida'),
+        body('featured')
+            .optional()
+            .isBoolean()
+            .withMessage('Featured debe ser booleano'),
         body('imageUrl').optional().isURL().withMessage('URL de imagen inválida'),
     ],
 
@@ -140,12 +144,33 @@ const validators = {
             .optional()
             .isInt({ min: 1 })
             .withMessage('Categoría inválida'),
+        body('active')
+            .optional()
+            .isBoolean()
+            .withMessage('Active debe ser booleano'),
+        body('featured')
+            .optional()
+            .isBoolean()
+            .withMessage('Featured debe ser booleano'),
     ],
 
     // Categories
     createCategory: [
         body('name').trim().notEmpty().withMessage('El nombre de la categoría es requerido'),
         body('description').optional().trim(),
+    ],
+
+    // Wishlist
+    addToWishlist: [
+        body('productId')
+            .notEmpty().withMessage('El ID del producto es requerido')
+            .isInt({ min: 1 }).withMessage('El ID del producto debe ser un número válido'),
+    ],
+
+    productIdParam: [
+        param('productId')
+            .isInt({ min: 1 })
+            .withMessage('ID de producto inválido'),
     ],
 
     // Cart

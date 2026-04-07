@@ -1,8 +1,12 @@
-const { Product, Category } = require('../models');
+const { Product, Category, ProductImage, sequelize } = require('../models');
 const { Op } = require('sequelize');
 
 class ProductService {
-    async getAll({ page = 1, limit = 10, search, categoryId, minPrice, maxPrice }) {
+    removeUndefinedValues(payload) {
+        return Object.fromEntries(Object.entries(payload).filter(([, value]) => typeof value !== 'undefined'));
+    }
+
+    async getAll({ page = 1, limit = 10, search, categoryId, minPrice, maxPrice, featured }) {
         const offset = (page - 1) * limit;
         const where = { active: true };
 
@@ -20,9 +24,23 @@ class ProductService {
             if (maxPrice) where.price[Op.lte] = maxPrice;
         }
 
+        if (typeof featured !== 'undefined') {
+            where.featured = `${featured}` === 'true';
+        }
+
         const { count, rows } = await Product.findAndCountAll({
             where,
-            include: [{ model: Category, as: 'category', attributes: ['id', 'name'] }],
+            include: [
+                { model: Category, as: 'category', attributes: ['id', 'name'] },
+                {
+                    model: ProductImage,
+                    as: 'images',
+                    attributes: ['id', 'imageUrl', 'sortOrder', 'isPrimary'],
+                    separate: true,
+                    order: [['sortOrder', 'ASC']],
+                },
+            ],
+            distinct: true,
             limit: parseInt(limit),
             offset,
             order: [['createdAt', 'DESC']],
@@ -34,7 +52,16 @@ class ProductService {
     async getById(id) {
         const product = await Product.findOne({
             where: { id, active: true },
-            include: [{ model: Category, as: 'category', attributes: ['id', 'name'] }],
+            include: [
+                { model: Category, as: 'category', attributes: ['id', 'name'] },
+                {
+                    model: ProductImage,
+                    as: 'images',
+                    attributes: ['id', 'imageUrl', 'sortOrder', 'isPrimary'],
+                    separate: true,
+                    order: [['sortOrder', 'ASC']],
+                },
+            ],
         });
 
         if (!product) {
@@ -55,9 +82,46 @@ class ProductService {
             throw error;
         }
 
-        const product = await Product.create(data);
-        return product.reload({
-            include: [{ model: Category, as: 'category', attributes: ['id', 'name'] }],
+        const created = await sequelize.transaction(async (transaction) => {
+            const productPayload = {
+                name: data.name,
+                description: data.description,
+                price: data.price,
+                stock: data.stock,
+                categoryId: data.categoryId,
+                featured: data.featured,
+                imageUrl: data.imageUrl,
+            };
+
+            const product = await Product.create(this.removeUndefinedValues(productPayload), { transaction });
+
+            if (Array.isArray(data.imageUrls) && data.imageUrls.length > 0) {
+                const imageRows = data.imageUrls.map((url, index) => ({
+                    productId: product.id,
+                    imageUrl: url,
+                    sortOrder: index,
+                    isPrimary: index === 0,
+                }));
+                await ProductImage.bulkCreate(imageRows, { transaction });
+                if (!product.imageUrl) {
+                    await product.update({ imageUrl: data.imageUrls[0] }, { transaction });
+                }
+            }
+
+            return product;
+        });
+
+        return created.reload({
+            include: [
+                { model: Category, as: 'category', attributes: ['id', 'name'] },
+                {
+                    model: ProductImage,
+                    as: 'images',
+                    attributes: ['id', 'imageUrl', 'sortOrder', 'isPrimary'],
+                    separate: true,
+                    order: [['sortOrder', 'ASC']],
+                },
+            ],
         });
     }
 
@@ -78,9 +142,50 @@ class ProductService {
             }
         }
 
-        await product.update(data);
+        await sequelize.transaction(async (transaction) => {
+            const payload = {
+                name: data.name,
+                description: data.description,
+                price: data.price,
+                stock: data.stock,
+                categoryId: data.categoryId,
+                active: data.active,
+            };
+
+            if (typeof data.featured !== 'undefined') {
+                payload.featured = data.featured;
+            }
+
+            if (data.imageUrl) {
+                payload.imageUrl = data.imageUrl;
+            }
+
+            await product.update(this.removeUndefinedValues(payload), { transaction });
+
+            if (Array.isArray(data.imageUrls) && data.imageUrls.length > 0) {
+                await ProductImage.destroy({ where: { productId: product.id }, transaction });
+                const imageRows = data.imageUrls.map((url, index) => ({
+                    productId: product.id,
+                    imageUrl: url,
+                    sortOrder: index,
+                    isPrimary: index === 0,
+                }));
+                await ProductImage.bulkCreate(imageRows, { transaction });
+                await product.update({ imageUrl: data.imageUrls[0] }, { transaction });
+            }
+        });
+
         return product.reload({
-            include: [{ model: Category, as: 'category', attributes: ['id', 'name'] }],
+            include: [
+                { model: Category, as: 'category', attributes: ['id', 'name'] },
+                {
+                    model: ProductImage,
+                    as: 'images',
+                    attributes: ['id', 'imageUrl', 'sortOrder', 'isPrimary'],
+                    separate: true,
+                    order: [['sortOrder', 'ASC']],
+                },
+            ],
         });
     }
 

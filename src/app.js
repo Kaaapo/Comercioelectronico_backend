@@ -18,6 +18,7 @@ const paymentRoutes = require('./routes/payment.routes');
 const dashboardRoutes = require('./routes/dashboard.routes');
 const reviewRoutes = require('./routes/review.routes');
 const returnRoutes = require('./routes/return.routes');
+const wishlistRoutes = require('./routes/wishlist.routes');
 
 // Middleware
 const { errorHandler } = require('./middlewares/errorHandler');
@@ -147,6 +148,7 @@ app.get('/api', (req, res) => {
             dashboard: '/api/dashboard',
             reviews: '/api/reviews',
             returns: '/api/returns',
+            wishlist: '/api/wishlist',
         },
     });
 });
@@ -160,6 +162,7 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/returns', returnRoutes);
+app.use('/api/wishlist', wishlistRoutes);
 
 // ===================== 404 =====================
 app.use((req, res) => {

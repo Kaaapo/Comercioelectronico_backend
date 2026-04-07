@@ -1,6 +1,17 @@
 require('dotenv').config();
 
-const { sequelize, User, Category, Product, Cart, Order, OrderItem, Payment } = require('../src/models');
+const {
+    sequelize,
+    User,
+    Category,
+    Product,
+    ProductImage,
+    Wishlist,
+    Cart,
+    Order,
+    OrderItem,
+    Payment,
+} = require('../src/models');
 
 const seed = async () => {
     try {
@@ -61,19 +72,39 @@ const seed = async () => {
 
         // ==================== CATEGORÍAS ====================
         const categories = await Category.bulkCreate([
-            { name: 'Electrónica', description: 'Dispositivos electrónicos y gadgets' },
-            { name: 'Ropa', description: 'Ropa y accesorios de moda' },
-            { name: 'Hogar', description: 'Artículos para el hogar y decoración' },
-            { name: 'Deportes', description: 'Equipo y ropa deportiva' },
-            { name: 'Libros', description: 'Libros físicos y digitales' },
+            {
+                name: 'Electrónica',
+                description: 'Dispositivos electrónicos y gadgets',
+                imageUrl: 'https://via.placeholder.com/400x400?text=Categoria+Electronica',
+            },
+            {
+                name: 'Ropa',
+                description: 'Ropa y accesorios de moda',
+                imageUrl: 'https://via.placeholder.com/400x400?text=Categoria+Ropa',
+            },
+            {
+                name: 'Hogar',
+                description: 'Artículos para el hogar y decoración',
+                imageUrl: 'https://via.placeholder.com/400x400?text=Categoria+Hogar',
+            },
+            {
+                name: 'Deportes',
+                description: 'Equipo y ropa deportiva',
+                imageUrl: 'https://via.placeholder.com/400x400?text=Categoria+Deportes',
+            },
+            {
+                name: 'Libros',
+                description: 'Libros físicos y digitales',
+                imageUrl: 'https://via.placeholder.com/400x400?text=Categoria+Libros',
+            },
         ]);
         console.log('📂 Categorías creadas');
 
         // ==================== PRODUCTOS ====================
         const products = await Product.bulkCreate([
             // Electrónica
-            { name: 'Smartphone XPro 15', description: 'Teléfono inteligente de última generación con cámara de 108MP', price: 899.99, stock: 50, categoryId: categories[0].id, imageUrl: 'https://via.placeholder.com/400x400?text=Smartphone' },
-            { name: 'Laptop UltraBook 14"', description: 'Laptop ultradelgada con procesador i7 y 16GB RAM', price: 1299.99, stock: 30, categoryId: categories[0].id, imageUrl: 'https://via.placeholder.com/400x400?text=Laptop' },
+            { name: 'Smartphone XPro 15', description: 'Teléfono inteligente de última generación con cámara de 108MP', price: 899.99, stock: 50, categoryId: categories[0].id, imageUrl: 'https://via.placeholder.com/400x400?text=Smartphone', featured: true },
+            { name: 'Laptop UltraBook 14"', description: 'Laptop ultradelgada con procesador i7 y 16GB RAM', price: 1299.99, stock: 30, categoryId: categories[0].id, imageUrl: 'https://via.placeholder.com/400x400?text=Laptop', featured: true },
             { name: 'Auriculares Bluetooth Pro', description: 'Auriculares inalámbricos con cancelación de ruido activa', price: 149.99, stock: 100, categoryId: categories[0].id, imageUrl: 'https://via.placeholder.com/400x400?text=Auriculares' },
             { name: 'Tablet 10"', description: 'Tablet con pantalla retina y 128GB de almacenamiento', price: 449.99, stock: 40, categoryId: categories[0].id, imageUrl: 'https://via.placeholder.com/400x400?text=Tablet' },
             // Ropa
@@ -93,6 +124,37 @@ const seed = async () => {
             { name: 'Producto Stock Bajo', description: 'Producto con stock bajo para pruebas de dashboard', price: 19.99, stock: 3, categoryId: categories[2].id, imageUrl: 'https://via.placeholder.com/400x400?text=StockBajo' },
         ]);
         console.log('📦 Productos creados');
+
+        const productImageRows = products.flatMap((product, index) => [
+            {
+                productId: product.id,
+                imageUrl: product.imageUrl,
+                sortOrder: 0,
+                isPrimary: true,
+            },
+            {
+                productId: product.id,
+                imageUrl: `https://via.placeholder.com/400x400?text=Producto+${index + 1}+A`,
+                sortOrder: 1,
+                isPrimary: false,
+            },
+            {
+                productId: product.id,
+                imageUrl: `https://via.placeholder.com/400x400?text=Producto+${index + 1}+B`,
+                sortOrder: 2,
+                isPrimary: false,
+            },
+        ]);
+
+        await ProductImage.bulkCreate(productImageRows);
+        console.log('🖼️ Imágenes de productos creadas');
+
+        await Wishlist.bulkCreate([
+            { userId: customer1.id, productId: products[0].id },
+            { userId: customer1.id, productId: products[4].id },
+            { userId: customer2.id, productId: products[1].id },
+        ]);
+        console.log('❤️ Favoritos creados');
 
         // ==================== ÓRDENES DE EJEMPLO ====================
         const order1 = await Order.create({

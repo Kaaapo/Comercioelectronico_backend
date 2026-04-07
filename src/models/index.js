@@ -10,6 +10,8 @@ const OrderItem = require('./OrderItem');
 const Payment = require('./Payment');
 const Review = require('./Review');
 const Return = require('./Return');
+const Wishlist = require('./Wishlist');
+const ProductImage = require('./ProductImage');
 
 // ===================== ASOCIACIONES =====================
 
@@ -53,6 +55,18 @@ Review.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 Product.hasMany(Review, { foreignKey: 'productId', as: 'reviews' });
 Review.belongsTo(Product, { foreignKey: 'productId', as: 'product' });
 
+// User -> Wishlist (1:N)
+User.hasMany(Wishlist, { foreignKey: 'userId', as: 'wishlistItems', onDelete: 'CASCADE' });
+Wishlist.belongsTo(User, { foreignKey: 'userId', as: 'user', onDelete: 'CASCADE' });
+
+// Product -> Wishlist (1:N)
+Product.hasMany(Wishlist, { foreignKey: 'productId', as: 'wishlistItems', onDelete: 'CASCADE' });
+Wishlist.belongsTo(Product, { foreignKey: 'productId', as: 'product', onDelete: 'CASCADE' });
+
+// Product -> ProductImage (1:N)
+Product.hasMany(ProductImage, { foreignKey: 'productId', as: 'images', onDelete: 'CASCADE' });
+ProductImage.belongsTo(Product, { foreignKey: 'productId', as: 'product', onDelete: 'CASCADE' });
+
 // User -> Returns (1:N)
 User.hasMany(Return, { foreignKey: 'userId', as: 'returns' });
 Return.belongsTo(User, { foreignKey: 'userId', as: 'user' });
@@ -77,4 +91,6 @@ module.exports = {
     Payment,
     Review,
     Return,
+    Wishlist,
+    ProductImage,
 };

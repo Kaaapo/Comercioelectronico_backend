@@ -7,6 +7,7 @@ const { sequelize } = require('./models');
 const { setupOrderSocket } = require('./sockets/orderSocket');
 
 const PORT = process.env.PORT || 3000;
+const isProduction = process.env.NODE_ENV === 'production';
 
 // Crear servidor HTTP
 const server = http.createServer(app);
@@ -31,9 +32,13 @@ const start = async () => {
         await sequelize.authenticate();
         console.log(' Conexión a PostgreSQL establecida correctamente');
 
-        // Sincronizar modelos (en desarrollo, usar { alter: true } para actualizar)
-        await sequelize.sync({ alter: true });
-        console.log(' Modelos sincronizados con la base de datos');
+        if (isProduction) {
+            console.log(' Producción detectada: sync automático deshabilitado (usar migraciones)');
+        } else {
+            // Solo en desarrollo para iterar rápidamente sobre el esquema.
+            await sequelize.sync({ alter: true });
+            console.log(' Modelos sincronizados con la base de datos');
+        }
 
         server.listen(PORT, () => {
             console.log(`\n Servidor corriendo en http://localhost:${PORT}`);

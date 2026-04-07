@@ -70,6 +70,19 @@ npm run seed
 ```
 > ⚠️ El seed usa `force: true` — borra y recrea todas las tablas. No ejecutar en producción con datos reales.
 
+### 4.1 Migración segura para producción (Neon con datos existentes)
+Si ya tienes datos en producción, usa este flujo incremental (idempotente y sin borrar tablas):
+
+```bash
+npm run migrate:features
+npm run seed:features
+```
+
+Qué hace este flujo:
+- Crea/agrega estructuras nuevas (`featured`, `product_images`, `wishlists`, `categories.image_url`) sin destruir datos.
+- Hace backfill de datos existentes (imagen principal de producto, imagen de categoría si faltaba).
+- Crea datos incrementales de prueba sin duplicados (favoritos e imágenes secundarias).
+
 ### 5. Iniciar el Servidor
 ```bash
 npm run dev
@@ -119,17 +132,28 @@ No necesitas instalar ni correr el backend localmente.
 |---|---|---|---|
 | GET | `/api/products` | No | Listar productos (filtros, paginación) |
 | GET | `/api/products/:id` | No | Detalle de producto |
-| POST | `/api/products` | Admin | Crear producto (soporta imagen `multipart/form-data`) |
-| PUT | `/api/products/:id` | Admin | Actualizar producto (soporta imagen `multipart/form-data`) |
+| POST | `/api/products` | Admin | Crear producto (`multipart/form-data`, soporta `images[]` hasta 10 y `featured`) |
+| PUT | `/api/products/:id` | Admin | Actualizar producto (`multipart/form-data`, soporta `images[]` hasta 10 y `featured`) |
 | DELETE | `/api/products/:id` | Admin | Eliminar producto (soft-delete) |
+
+Filtro nuevo en catálogo:
+- `GET /api/products?featured=true` devuelve solo productos destacados.
 
 ### Categorías
 | Método | Endpoint | Auth | Descripción |
 |---|---|---|---|
 | GET | `/api/categories` | No | Listar categorías |
-| POST | `/api/categories` | Admin | Crear categoría |
-| PUT | `/api/categories/:id` | Admin | Actualizar categoría |
+| POST | `/api/categories` | Admin | Crear categoría (requiere `multipart/form-data` con `image`) |
+| PUT | `/api/categories/:id` | Admin | Actualizar categoría (permite reemplazar `image`) |
 | DELETE | `/api/categories/:id` | Admin | Eliminar categoría |
+
+### Favoritos (Customer)
+| Método | Endpoint | Auth | Descripción |
+|---|---|---|---|
+| GET | `/api/wishlist` | Customer | Listar favoritos del usuario autenticado |
+| POST | `/api/wishlist/items` | Customer | Agregar producto a favoritos |
+| DELETE | `/api/wishlist/items/:productId` | Customer | Eliminar producto de favoritos |
+| GET | `/api/wishlist/:productId` | Customer | Verificar si un producto está en favoritos |
 
 ### Carrito
 | Método | Endpoint | Descripción |
