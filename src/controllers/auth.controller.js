@@ -31,8 +31,8 @@ class AuthController {
 
     async updateProfile(req, res, next) {
         try {
-            const { address, city, department } = req.body;
-            const user = await authService.updateProfile(req.user.id, { address, city, department });
+            const { address, city, department, phone } = req.body;
+            const user = await authService.updateProfile(req.user.id, { address, city, department, phone });
             return ApiResponse.success(res, { user }, 'Perfil actualizado exitosamente');
         } catch (error) {
             next(error);

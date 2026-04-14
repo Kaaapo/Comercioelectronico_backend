@@ -86,6 +86,8 @@ router.get('/', validators.pagination, validate, productController.getAll);
  */
 router.get('/:id', validators.paramId, validate, productController.getById);
 
+router.get('/:id/similar', validators.paramId, validate, productController.getSimilar);
+
 /**
  * @swagger
  * /api/products:

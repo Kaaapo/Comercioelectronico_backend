@@ -15,6 +15,8 @@ class ProductController {
                 featured,
                 brand,
                 color,
+                onDiscount,
+                sort,
             } = req.query;
             const { products, total } = await productService.getAll({
                 page,
@@ -26,6 +28,8 @@ class ProductController {
                 featured,
                 brand,
                 color,
+                onDiscount,
+                sort,
             });
             return ApiResponse.paginated(res, products, total, page, limit, 'Productos obtenidos');
         } catch (error) {
@@ -106,6 +110,15 @@ class ProductController {
 
             const product = await productService.update(req.params.id, data);
             return ApiResponse.success(res, { product }, 'Producto actualizado exitosamente');
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getSimilar(req, res, next) {
+        try {
+            const products = await productService.getSimilar(req.params.id);
+            return ApiResponse.success(res, { products });
         } catch (error) {
             next(error);
         }

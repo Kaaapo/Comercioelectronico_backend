@@ -1,5 +1,6 @@
 const { Order, OrderItem, Cart, CartItem, Product, Payment, User, Category, sequelize } = require('../models');
 const { emitNotification } = require('../sockets/orderSocket');
+const { sendOrderConfirmationEmail } = require('./email.service');
 
 class OrderService {
     async createFromCart(userId, { shippingAddress }, io) {
@@ -72,21 +73,30 @@ class OrderService {
 
             const fullOrder = await this.getById(order.id, userId);
 
-            // Notificar al usuario que su pedido fue creado
+            // ── WebSocket notifications ──────────────────────────
             if (io) {
                 emitNotification(io, `user_${userId}`, 'order_created',
                     '¡Pedido creado!',
                     `Tu pedido #${fullOrder.orderNumber || order.id} por $${order.total} está pendiente de pago.`,
                     { orderId: order.id, total: order.total, status: 'pendiente' }
                 );
-
-                // Notificar al admin que llegó un nuevo pedido
                 emitNotification(io, 'admin_channel', 'new_order_admin',
                     'Nuevo pedido recibido',
                     `El usuario ${fullOrder.user?.name || userId} realizó un pedido de $${order.total}.`,
                     { orderId: order.id, userId, total: order.total }
                 );
             }
+
+            // ── Email (no bloquea la respuesta) ──────────────────
+            const user = fullOrder.user;
+            const orderItems = fullOrder.items || [];
+
+            sendOrderConfirmationEmail(
+                user?.email,
+                user?.name || 'Cliente',
+                fullOrder,
+                orderItems
+            ).catch(err => console.error('[Email] Error al enviar confirmación de pedido:', err.message));
 
             return fullOrder;
         } catch (error) {
@@ -134,7 +144,7 @@ class OrderService {
                 {
                     model: User,
                     as: 'user',
-                    attributes: ['id', 'name', 'email'],
+                    attributes: ['id', 'name', 'email', 'phone'],
                 },
                 {
                     model: OrderItem,
@@ -191,7 +201,7 @@ class OrderService {
 
     async updateStatus(orderId, status, io) {
         const order = await Order.findByPk(orderId, {
-            include: [{ model: User, as: 'user', attributes: ['id', 'name', 'email'] }],
+            include: [{ model: User, as: 'user', attributes: ['id', 'name', 'email', 'phone'] }],
         });
 
         if (!order) {
@@ -203,7 +213,7 @@ class OrderService {
         const previousStatus = order.status;
         await order.update({ status });
 
-        // Emitir notificación WebSocket al usuario
+        // ── WebSocket ────────────────────────────────────────
         if (io) {
             emitNotification(io, `user_${order.userId}`, 'order_status_updated',
                 'Estado de tu pedido actualizado',
@@ -211,6 +221,7 @@ class OrderService {
                 { orderId: order.id, previousStatus, newStatus: status }
             );
         }
+
 
         return order.reload({
             include: [

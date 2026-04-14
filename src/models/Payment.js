@@ -20,7 +20,7 @@ const Payment = sequelize.define('Payment', {
         allowNull: false,
     },
     method: {
-        type: DataTypes.ENUM('tarjeta', 'transferencia', 'paypal'),
+        type: DataTypes.ENUM('tarjeta', 'transferencia', 'paypal', 'pse', 'contraentrega'),
         allowNull: false,
     },
     status: {

@@ -6,7 +6,7 @@ class ProductService {
         return Object.fromEntries(Object.entries(payload).filter(([, value]) => typeof value !== 'undefined'));
     }
 
-    async getAll({ page = 1, limit = 10, search, categoryId, minPrice, maxPrice, featured, brand, color }) {
+    async getAll({ page = 1, limit = 10, search, categoryId, minPrice, maxPrice, featured, brand, color, onDiscount, sort }) {
         const offset = (page - 1) * limit;
         const where = { active: true };
 
@@ -36,6 +36,10 @@ class ProductService {
             where.color = { [Op.iLike]: `%${color}%` };
         }
 
+        if (`${onDiscount}` === 'true') {
+            where.discountPercentage = { [Op.gt]: 0 };
+        }
+
         const { count, rows } = await Product.findAndCountAll({
             where,
             include: [
@@ -51,7 +55,9 @@ class ProductService {
             distinct: true,
             limit: parseInt(limit),
             offset,
-            order: [['createdAt', 'DESC']],
+            order: sort === 'price_desc' ? [['price', 'DESC']]
+                 : sort === 'price_asc'  ? [['price', 'ASC']]
+                 : [['createdAt', 'DESC']],
         });
 
         return { products: rows, total: count };
@@ -101,6 +107,10 @@ class ProductService {
                 categoryId: data.categoryId,
                 featured: data.featured,
                 imageUrl: data.imageUrl,
+                originalPrice: data.originalPrice,
+                discountPercentage: data.discountPercentage,
+                supplier: data.supplier,
+                specifications: data.specifications,
             };
 
             const product = await Product.create(this.removeUndefinedValues(productPayload), { transaction });
@@ -162,6 +172,10 @@ class ProductService {
                 stock: data.stock,
                 categoryId: data.categoryId,
                 active: data.active,
+                originalPrice: data.originalPrice,
+                discountPercentage: data.discountPercentage,
+                supplier: data.supplier,
+                specifications: data.specifications,
             };
 
             if (typeof data.featured !== 'undefined') {
@@ -199,6 +213,33 @@ class ProductService {
                 },
             ],
         });
+    }
+
+    async getSimilar(id, limit = 6) {
+        const product = await Product.findOne({ where: { id, active: true } });
+        if (!product) return [];
+
+        const rows = await Product.findAll({
+            where: {
+                categoryId: product.categoryId,
+                active: true,
+                id: { [Op.ne]: id },
+            },
+            include: [
+                { model: Category, as: 'category', attributes: ['id', 'name'] },
+                {
+                    model: ProductImage,
+                    as: 'images',
+                    attributes: ['id', 'imageUrl', 'sortOrder', 'isPrimary'],
+                    separate: true,
+                    order: [['sortOrder', 'ASC']],
+                },
+            ],
+            limit,
+            order: [['createdAt', 'DESC']],
+        });
+
+        return rows;
     }
 
     async delete(id) {

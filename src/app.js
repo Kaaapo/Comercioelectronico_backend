@@ -19,6 +19,7 @@ const dashboardRoutes = require('./routes/dashboard.routes');
 const reviewRoutes = require('./routes/review.routes');
 const returnRoutes = require('./routes/return.routes');
 const wishlistRoutes = require('./routes/wishlist.routes');
+const chatbotRoutes = require('./routes/chatbot.routes');
 
 // Middleware
 const { errorHandler } = require('./middlewares/errorHandler');
@@ -149,6 +150,7 @@ app.get('/api', (req, res) => {
             reviews: '/api/reviews',
             returns: '/api/returns',
             wishlist: '/api/wishlist',
+            chatbot: '/api/chatbot',
         },
     });
 });
@@ -163,6 +165,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/returns', returnRoutes);
 app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/chatbot', chatbotRoutes);
 
 // ===================== 404 =====================
 app.use((req, res) => {

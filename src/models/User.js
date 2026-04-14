@@ -80,6 +80,16 @@ const User = sequelize.define('User', {
             isEmail: { msg: 'Email inválido' },
         },
     },
+    phone: {
+        type: DataTypes.STRING(20),
+        allowNull: true,
+        validate: {
+            is: {
+                args: /^\+?[\d\s\-().]{7,20}$/,
+                msg: 'El número de teléfono no es válido',
+            },
+        },
+    },
     password: {
         type: DataTypes.STRING,
         allowNull: false,

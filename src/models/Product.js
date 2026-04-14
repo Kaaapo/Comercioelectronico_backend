@@ -56,6 +56,24 @@ const Product = sequelize.define('Product', {
         allowNull: false,
         defaultValue: false,
     },
+    discountPercentage: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        field: 'discount_percentage',
+    },
+    originalPrice: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: true,
+        field: 'original_price',
+    },
+    supplier: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    specifications: {
+        type: DataTypes.JSONB,
+        allowNull: true,
+    },
     categoryId: {
         type: DataTypes.INTEGER,
         allowNull: false,

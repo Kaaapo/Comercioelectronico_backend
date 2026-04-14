@@ -4,7 +4,7 @@ const { User, Cart } = require('../models');
 const { sendVerificationEmail, sendResetPasswordEmail } = require('./email.service');
 
 class AuthService {
-    async register({ name, identificationNumber, birthDate, address, city, department, email, password }) {
+    async register({ name, identificationNumber, birthDate, address, city, department, email, password, phone }) {
         const existingUser = await User.findOne({ where: { email } });
         if (existingUser) {
             const error = new Error('El email ya está registrado');
@@ -26,7 +26,7 @@ class AuthService {
         // El rol siempre es 'customer' en el registro público
         const user = await User.create({
             name, identificationNumber, birthDate, address, city, department,
-            email, password,
+            email, password, phone: phone || null,
             role: 'customer',
             verificationToken,
             verificationTokenExpires,
@@ -34,8 +34,9 @@ class AuthService {
 
         await Cart.create({ userId: user.id });
 
-        // Enviar correo de verificación
-        await sendVerificationEmail(email, name, verificationToken);
+        // Enviar correo de verificación (no bloquea el registro si falla)
+        sendVerificationEmail(email, name, verificationToken)
+            .catch(err => console.error('[Email] Error al enviar verificación:', err.message));
 
         const token = this.generateToken(user);
         return { user, token };
@@ -72,7 +73,7 @@ class AuthService {
         return user;
     }
 
-    async updateProfile(userId, { address, city, department }) {
+    async updateProfile(userId, { address, city, department, phone }) {
         const user = await User.findByPk(userId);
         if (!user) {
             const error = new Error('Usuario no encontrado');
@@ -84,6 +85,7 @@ class AuthService {
         if (address !== undefined) updateData.address = address;
         if (city !== undefined) updateData.city = city;
         if (department !== undefined) updateData.department = department;
+        if (phone !== undefined) updateData.phone = phone;
 
         await user.update(updateData);
 

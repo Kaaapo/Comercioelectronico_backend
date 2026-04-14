@@ -23,8 +23,8 @@ const validators = {
         body('identificationNumber')
             .trim()
             .notEmpty().withMessage('El número de identificación es requerido')
-            .matches(/^\d+$/).withMessage('El número de identificación solo puede contener dígitos')
-            .isLength({ min: 6, max: 12 }).withMessage('El número de identificación debe tener entre 6 y 12 dígitos'),
+            .matches(/^[A-Za-z0-9]+$/).withMessage('El número de identificación solo puede contener letras y dígitos')
+            .isLength({ min: 4, max: 20 }).withMessage('El número de identificación debe tener entre 4 y 20 caracteres'),
         body('birthDate')
             .notEmpty().withMessage('La fecha de nacimiento es requerida')
             .isDate({ format: 'YYYY-MM-DD', strictMode: true }).withMessage('La fecha de nacimiento debe tener el formato YYYY-MM-DD')
@@ -50,6 +50,11 @@ const validators = {
         body('city').trim().notEmpty().withMessage('La ciudad es requerida'),
         body('department').trim().notEmpty().withMessage('El departamento es requerido'),
         body('email').isEmail().withMessage('Email inválido').normalizeEmail(),
+        body('phone')
+            .optional()
+            .trim()
+            .matches(/^\+?[\d\s\-().]{7,20}$/)
+            .withMessage('El número de teléfono no es válido (incluye código de país, ej: +573001234567)'),
         body('password')
             .isLength({ min: 6 })
             .withMessage('La contraseña debe tener al menos 6 caracteres'),
@@ -59,6 +64,11 @@ const validators = {
         body('address').optional().trim().notEmpty().withMessage('La dirección no puede estar vacía'),
         body('city').optional().trim().notEmpty().withMessage('La ciudad no puede estar vacía'),
         body('department').optional().trim().notEmpty().withMessage('El departamento no puede estar vacío'),
+        body('phone')
+            .optional()
+            .trim()
+            .matches(/^\+?[\d\s\-().]{7,20}$/)
+            .withMessage('El número de teléfono no es válido'),
     ],
 
     // Returns
@@ -129,6 +139,23 @@ const validators = {
             .isBoolean()
             .withMessage('Featured debe ser booleano'),
         body('imageUrl').optional().isURL().withMessage('URL de imagen inválida'),
+        body('originalPrice')
+            .optional()
+            .isFloat({ min: 0.01 })
+            .withMessage('El precio original debe ser mayor a 0'),
+        body('discountPercentage')
+            .optional()
+            .isInt({ min: 0, max: 100 })
+            .withMessage('El descuento debe ser un entero entre 0 y 100'),
+        body('supplier')
+            .optional()
+            .trim()
+            .notEmpty()
+            .withMessage('El proveedor no puede estar vacío'),
+        body('specifications')
+            .optional()
+            .isObject()
+            .withMessage('Las especificaciones deben ser un objeto clave-valor'),
     ],
 
     updateProduct: [
@@ -156,6 +183,23 @@ const validators = {
             .optional()
             .isBoolean()
             .withMessage('Featured debe ser booleano'),
+        body('originalPrice')
+            .optional()
+            .isFloat({ min: 0.01 })
+            .withMessage('El precio original debe ser mayor a 0'),
+        body('discountPercentage')
+            .optional()
+            .isInt({ min: 0, max: 100 })
+            .withMessage('El descuento debe ser un entero entre 0 y 100'),
+        body('supplier')
+            .optional()
+            .trim()
+            .notEmpty()
+            .withMessage('El proveedor no puede estar vacío'),
+        body('specifications')
+            .optional()
+            .isObject()
+            .withMessage('Las especificaciones deben ser un objeto clave-valor'),
     ],
 
     // Categories
@@ -215,8 +259,8 @@ const validators = {
             .isInt({ min: 1 })
             .withMessage('El ID de la orden es requerido'),
         body('method')
-            .isIn(['tarjeta', 'transferencia', 'paypal'])
-            .withMessage('Método de pago inválido. Valores permitidos: tarjeta, transferencia, paypal'),
+            .isIn(['tarjeta', 'transferencia', 'paypal', 'pse', 'contraentrega'])
+            .withMessage('Método de pago inválido. Valores permitidos: tarjeta, transferencia, paypal, pse, contraentrega'),
     ],
 
     // Pagination
