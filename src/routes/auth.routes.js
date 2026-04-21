@@ -101,7 +101,7 @@ router.get('/profile', auth, authController.getProfile);
  * @swagger
  * /api/auth/profile:
  *   put:
- *     summary: Actualizar perfil del usuario (dirección, ciudad, departamento)
+ *     summary: Actualizar perfil del usuario (dirección, ciudad, departamento, teléfono)
  *     tags: [Auth]
  *     security:
  *       - bearerAuth: []
@@ -121,6 +121,9 @@ router.get('/profile', auth, authController.getProfile);
  *               department:
  *                 type: string
  *                 example: Cundinamarca
+ *               phone:
+ *                 type: string
+ *                 example: +573001234567
  *     responses:
  *       200:
  *         description: Perfil actualizado exitosamente
