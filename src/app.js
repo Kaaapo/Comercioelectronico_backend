@@ -26,6 +26,16 @@ const { errorHandler } = require('./middlewares/errorHandler');
 
 const app = express();
 
+const isProduction = process.env.NODE_ENV === 'production';
+
+// En plataformas con reverse proxy (Railway, Render, etc.), confiar en el primer proxy
+// evita falsos errores de express-rate-limit con X-Forwarded-For.
+if (process.env.TRUST_PROXY === 'true') {
+    app.set('trust proxy', 1);
+} else if (isProduction) {
+    app.set('trust proxy', 1);
+}
+
 // ===================== MIDDLEWARE GLOBAL =====================
 // Seguridad: headers HTTP seguros
 app.use(helmet());
@@ -82,7 +92,7 @@ app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/register', authLimiter);
 app.use('/api/auth/forgot-password', authLimiter);
 
-if (process.env.NODE_ENV === 'development') {
+if (isProduction === false) {
     app.use(morgan('dev'));
 }
 
@@ -101,7 +111,7 @@ const swaggerOptions = {
         servers: [
             {
                 url: process.env.APP_URL || `http://localhost:${process.env.PORT || 3000}`,
-                description: process.env.NODE_ENV === 'production' ? 'Servidor de producción' : 'Servidor de desarrollo',
+                description: isProduction ? 'Servidor de producción' : 'Servidor de desarrollo',
             },
         ],
         components: {

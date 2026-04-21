@@ -44,6 +44,11 @@ const errorHandler = (err, req, res, next) => {
         return ApiResponse.error(res, 'Registro duplicado', 409, errors);
     }
 
+    // Body JSON inválido enviado por el cliente
+    if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+        return ApiResponse.error(res, 'JSON inválido en el cuerpo de la solicitud', 400);
+    }
+
     // Error de CORS
     if (err.message && err.message.startsWith('CORS:')) {
         return ApiResponse.error(res, err.message, 403);
