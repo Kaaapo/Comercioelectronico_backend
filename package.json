@@ -4,9 +4,11 @@
   "description": "Backend para proyecto de comercio electrónico - Universidad",
   "main": "src/server.js",
   "scripts": {
+    "prestart": "npm run migrate:user-phone",
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "seed": "node seed/seed.js",
+    "migrate:user-phone": "node scripts/migrate_user_phone_safe.js",
     "migrate:features": "node scripts/migrate_features_safe.js",
     "seed:features": "node scripts/seed_feature_data_safe.js",
     "migrate:brand-color": "node scripts/migrate_product_brand_color_safe.js",
