@@ -12,6 +12,7 @@
     "migrate:features": "node scripts/migrate_features_safe.js",
     "seed:features": "node scripts/seed_feature_data_safe.js",
     "migrate:brand-color": "node scripts/migrate_product_brand_color_safe.js",
+    "migrate:discount": "node scripts/migrate_product_discount_safe.js",
     "seed:gamer-catalog": "node scripts/seed_gamer_catalog_safe.js"
   },
   "keywords": [
