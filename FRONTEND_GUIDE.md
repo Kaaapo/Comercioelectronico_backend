@@ -7,6 +7,8 @@
 | **API Base** | `https://comercioelectronicobackend-production.up.railway.app` |
 | **Swagger (Docs)** | `https://comercioelectronicobackend-production.up.railway.app/api/docs` |
 
+> No necesitas correr ni instalar el backend. Ya está desplegado en Railway con la BD en Neon.
+
 ---
 
 ## Configuración en Vue
@@ -53,13 +55,28 @@ headers: {
 }
 ```
 
+### Registro y verificación de correo
+```
+1. POST /api/auth/register  →  se envía correo de verificación al usuario
+2. Usuario hace click en el link del correo
+3. GET /api/auth/verify-email?token=...  →  cuenta activada ✅
+```
+
+### Recuperación de contraseña
+```
+1. POST /api/auth/forgot-password  { "email": "..." }
+2. Usuario recibe correo con link (expira en 1 hora)
+3. POST /api/auth/reset-password?token=...  { "password": "nueva" }
+4. Contraseña actualizada ✅
+```
+
 ---
 
 ## Subida de Imágenes de Productos (Cloudinary)
 
 El backend maneja Cloudinary internamente. El frontend solo envía el archivo como `multipart/form-data`.
 
-### Crear producto con imagen
+### Crear producto con imágenes (hasta 10)
 ```javascript
 const formData = new FormData()
 formData.append('name', 'Nombre del producto')
@@ -67,7 +84,11 @@ formData.append('description', 'Descripción')
 formData.append('price', 99.99)
 formData.append('stock', 10)
 formData.append('categoryId', 1)
-formData.append('image', archivoSeleccionado) // campo requerido: "image"
+formData.append('featured', false)
+// Imagen principal (campo "image") o múltiples (campo "images")
+formData.append('image', archivoSeleccionado)
+// formData.append('images', archivo1)
+// formData.append('images', archivo2)
 
 const res = await fetch(`${import.meta.env.VITE_API_URL}/api/products`, {
   method: 'POST',
@@ -79,20 +100,48 @@ const res = await fetch(`${import.meta.env.VITE_API_URL}/api/products`, {
 })
 ```
 
-### Respuesta
+### Respuesta del producto
 ```json
 {
   "product": {
     "id": 1,
     "name": "Nombre del producto",
     "price": "99.99",
+    "originalPrice": "129.99",
+    "discountPercentage": 23,
+    "brand": "Logitech",
+    "color": "Negro",
+    "featured": true,
     "imageUrl": "https://res.cloudinary.com/dbmom7f9q/image/upload/...",
+    "images": [
+      { "id": 1, "imageUrl": "...", "sortOrder": 0, "isPrimary": true },
+      { "id": 2, "imageUrl": "...", "sortOrder": 1, "isPrimary": false }
+    ],
     "category": { "id": 1, "name": "Electrónica" }
   }
 }
 ```
 
-El campo `imageUrl` ya es la URL pública lista para usar en `<img :src="product.imageUrl" />`.
+> - `imageUrl` es la URL principal (la primera imagen). Lista para `<img :src="product.imageUrl" />`.
+> - `images` es el arreglo completo de imágenes del producto, ordenadas por `sortOrder`.
+> - `originalPrice` y `discountPercentage` son `null` si el producto no tiene descuento activo.
+
+---
+
+## Filtros de Productos
+
+```
+GET /api/products?page=1&limit=10
+GET /api/products?search=teclado
+GET /api/products?categoryId=2
+GET /api/products?minPrice=50000&maxPrice=200000
+GET /api/products?featured=true
+GET /api/products?brand=logitech
+GET /api/products?color=negro
+GET /api/products?onDiscount=true        ← productos con discountPercentage > 0
+GET /api/products?sort=price_asc
+GET /api/products?sort=price_desc
+```
 
 ---
 
@@ -193,27 +242,47 @@ socket.disconnect()
 
 ---
 
-## Endpoints Principales
+## Endpoints Completos
 
-Ver documentación completa en Swagger:
+Ver documentación interactiva en Swagger:
 **https://comercioelectronicobackend-production.up.railway.app/api/docs**
 
 ### Auth
 | Método | Endpoint | Auth | Descripción |
 |---|---|---|---|
-| POST | `/api/auth/register` | No | Registrar usuario |
+| POST | `/api/auth/register` | No | Registrar usuario (envía correo de verificación) |
 | POST | `/api/auth/login` | No | Login → devuelve JWT |
 | GET | `/api/auth/profile` | Sí | Ver perfil |
-| PUT | `/api/auth/profile` | Sí | Editar dirección/ciudad/departamento |
+| PUT | `/api/auth/profile` | Sí | Editar dirección / ciudad / departamento |
+| GET | `/api/auth/verify-email?token=` | No | Verificar correo electrónico |
+| POST | `/api/auth/forgot-password` | No | Solicitar recuperación de contraseña |
+| POST | `/api/auth/reset-password?token=` | No | Restablecer contraseña con token |
 
 ### Productos
 | Método | Endpoint | Auth | Descripción |
 |---|---|---|---|
-| GET | `/api/products` | No | Listar (filtros: search, categoryId, minPrice, maxPrice, page, limit) |
-| GET | `/api/products/:id` | No | Detalle |
-| POST | `/api/products` | Admin | Crear (multipart/form-data) |
-| PUT | `/api/products/:id` | Admin | Actualizar |
-| DELETE | `/api/products/:id` | Admin | Eliminar |
+| GET | `/api/products` | No | Listar con filtros y paginación |
+| GET | `/api/products/:id` | No | Detalle del producto |
+| GET | `/api/products/:id/similar` | No | Productos similares (misma categoría) |
+| POST | `/api/products` | Admin | Crear (`multipart/form-data`) |
+| PUT | `/api/products/:id` | Admin | Actualizar (`multipart/form-data`) |
+| DELETE | `/api/products/:id` | Admin | Eliminar (soft-delete) |
+
+### Categorías
+| Método | Endpoint | Auth | Descripción |
+|---|---|---|---|
+| GET | `/api/categories` | No | Listar categorías (incluye `imageUrl`) |
+| POST | `/api/categories` | Admin | Crear (requiere `multipart/form-data` con `image`) |
+| PUT | `/api/categories/:id` | Admin | Actualizar (permite reemplazar `image`) |
+| DELETE | `/api/categories/:id` | Admin | Eliminar categoría |
+
+### Favoritos (Wishlist)
+| Método | Endpoint | Auth | Descripción |
+|---|---|---|---|
+| GET | `/api/wishlist` | Sí | Listar favoritos del usuario |
+| POST | `/api/wishlist/items` | Sí | Agregar producto a favoritos (`{ productId }`) |
+| DELETE | `/api/wishlist/items/:productId` | Sí | Eliminar producto de favoritos |
+| GET | `/api/wishlist/:productId` | Sí | Verificar si un producto está en favoritos |
 
 ### Carrito
 | Método | Endpoint | Auth | Descripción |
@@ -256,6 +325,14 @@ Ver documentación completa en Swagger:
 |---|---|---|---|
 | POST | `/api/payments` | Sí | Procesar pago (simulación, 80% aprobación) |
 | GET | `/api/payments/:orderId` | Sí | Consultar pagos de una orden |
+
+### Dashboard (Admin)
+| Método | Endpoint | Auth | Descripción |
+|---|---|---|---|
+| GET | `/api/dashboard/stats` | Admin | Resumen general |
+| GET | `/api/dashboard/sales` | Admin | Ventas por período |
+| GET | `/api/dashboard/inventory` | Admin | Estado del inventario |
+| GET | `/api/dashboard/top-products` | Admin | Productos más vendidos |
 
 ---
 

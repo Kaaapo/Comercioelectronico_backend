@@ -32,6 +32,7 @@ API REST para plataforma de comercio electrónico desarrollada con **Node.js**, 
 
 ### 1. Requisitos Previos
 - [Node.js](https://nodejs.org/) v18+
+- Acceso a una base de datos PostgreSQL (se recomienda [Neon](https://neon.tech) como en producción)
 
 ### 2. Instalar Dependencias
 ```bash
@@ -79,6 +80,7 @@ Si ya tienes datos en producción, usa este flujo incremental (idempotente y sin
 ```bash
 npm run migrate:features
 npm run migrate:brand-color
+npm run migrate:discount
 npm run seed:gamer-catalog
 npm run seed:features
 ```
@@ -86,6 +88,7 @@ npm run seed:features
 Qué hace este flujo:
 - Crea/agrega estructuras nuevas (`featured`, `product_images`, `wishlists`, `categories.image_url`) sin destruir datos.
 - Agrega atributos de catálogo (`brand`, `color`) para productos en producción.
+- Agrega columnas `discount_percentage` y `original_price` a la tabla `products`.
 - Sincroniza catálogo gamer/electrónico y desactiva productos fuera del enfoque.
 - Hace backfill de datos existentes (imagen principal de producto, imagen de categoría si faltaba).
 - Crea datos incrementales de prueba sin duplicados (favoritos e imágenes secundarias).
@@ -220,8 +223,8 @@ El servidor usa **Socket.IO** para emitir notificaciones automáticas ante accio
 
 ### Conectarse
 ```javascript
-const socket = io('http://localhost:3000', {
-  auth: { token: 'TU_JWT_TOKEN' }
+const socket = io(import.meta.env.VITE_API_URL, {
+  auth: { token: localStorage.getItem('token') }
 });
 
 socket.on('notification', (data) => {
@@ -279,8 +282,9 @@ src/
 │   ├── auth.js              # JWT verification (HS256 restringido)
 │   ├── role.js              # Role-based access (admin/customer)
 │   └── errorHandler.js      # Error handling seguro (sin stack trace en producción)
-├── models/                  # 10 modelos Sequelize (User, Product, Category, Cart,
-│                            # CartItem, Order, OrderItem, Payment, Review, Return)
+├── models/                  # 12 modelos Sequelize (User, Product, Category, Cart,
+│                            # CartItem, Order, OrderItem, Payment, Review, Return,
+│                            # ProductImage, Wishlist)
 ├── services/
 │   ├── auth.service.js      # Registro, login, perfil, verificación, recuperación
 │   ├── cloudinary.service.js# Subida y eliminación de imágenes
