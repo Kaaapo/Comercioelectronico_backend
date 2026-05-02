@@ -36,6 +36,28 @@ const migrate = async () => {
             console.log('ℹ️  products.original_price ya existe');
         }
 
+        // 3) products.supplier
+        if (!(await columnExists(queryInterface, 'products', 'supplier'))) {
+            await queryInterface.addColumn('products', 'supplier', {
+                type: sequelize.Sequelize.STRING,
+                allowNull: true,
+            });
+            console.log('✅ Columna products.supplier creada');
+        } else {
+            console.log('ℹ️  products.supplier ya existe');
+        }
+
+        // 4) products.specifications
+        if (!(await columnExists(queryInterface, 'products', 'specifications'))) {
+            await queryInterface.addColumn('products', 'specifications', {
+                type: sequelize.Sequelize.JSONB,
+                allowNull: true,
+            });
+            console.log('✅ Columna products.specifications creada');
+        } else {
+            console.log('ℹ️  products.specifications ya existe');
+        }
+
         console.log('\n🎉 Migración completada exitosamente');
         process.exit(0);
     } catch (error) {
