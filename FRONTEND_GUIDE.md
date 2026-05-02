@@ -326,6 +326,37 @@ Ver documentación interactiva en Swagger:
 | POST | `/api/payments` | Sí | Procesar pago (simulación, 80% aprobación) |
 | GET | `/api/payments/:orderId` | Sí | Consultar pagos de una orden |
 
+### Chatbot IA (Gemini)
+| Método | Endpoint | Auth | Descripción |
+|---|---|---|---|
+| POST | `/api/chatbot/message` | No | Enviar mensaje al chatbot y recibir respuesta + productos sugeridos |
+
+#### Body
+```json
+{
+  "message": "¿Tienen teclados mecánicos o mouses gamer?",
+  "history": [
+    { "role": "user", "content": "Hola" },
+    { "role": "assistant", "content": "¡Hola! ¿En qué te puedo ayudar?" }
+  ]
+}
+```
+> `history` es opcional. Úsalo para mantener el contexto de una conversación multi-turno.
+
+#### Respuesta
+```json
+{
+  "success": true,
+  "data": {
+    "reply": "Sí, contamos con varios teclados mecánicos y mouses gamer...",
+    "suggestedProducts": [12, 7, 23]
+  }
+}
+```
+> `suggestedProducts` es un array de IDs de productos relevantes. Puedes usarlos para mostrar una sección "Productos relacionados" debajo de la respuesta del bot.
+
+---
+
 ### Dashboard (Admin)
 | Método | Endpoint | Auth | Descripción |
 |---|---|---|---|
