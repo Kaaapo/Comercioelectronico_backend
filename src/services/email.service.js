@@ -39,7 +39,7 @@ const sendVerificationEmail = async (toEmail, userName, token) => {
  * @param {string} token    - Token de recuperación único
  */
 const sendResetPasswordEmail = async (toEmail, userName, token) => {
-    const resetUrl = `${process.env.APP_URL}/api/auth/reset-password?token=${token}`;
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
 
     await sgMail.send({
         from: { email: FROM_EMAIL, name: 'E-Commerce 🛒' },
