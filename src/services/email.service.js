@@ -1,13 +1,9 @@
-// Servicio de envío de correos transaccionales con Nodemailer (Gmail)
-const nodemailer = require('nodemailer');
+// Servicio de envío de correos transaccionales con SendGrid
+const sgMail = require('@sendgrid/mail');
 
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS, // Contraseña de aplicación de Google
-    },
-});
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+const FROM_EMAIL = process.env.EMAIL_FROM; // Remitente verificado en SendGrid
 
 /**
  * Envía el correo de verificación de cuenta al usuario recién registrado.
@@ -18,8 +14,8 @@ const transporter = nodemailer.createTransport({
 const sendVerificationEmail = async (toEmail, userName, token) => {
     const verifyUrl = `${process.env.APP_URL}/api/auth/verify-email?token=${token}`;
 
-    await transporter.sendMail({
-        from: `"E-Commerce 🛒" <${process.env.EMAIL_USER}>`,
+    await sgMail.send({
+        from: { email: FROM_EMAIL, name: 'E-Commerce 🛒' },
         to: toEmail,
         subject: 'Verifica tu cuenta',
         html: `
@@ -45,8 +41,8 @@ const sendVerificationEmail = async (toEmail, userName, token) => {
 const sendResetPasswordEmail = async (toEmail, userName, token) => {
     const resetUrl = `${process.env.APP_URL}/api/auth/reset-password?token=${token}`;
 
-    await transporter.sendMail({
-        from: `"E-Commerce 🛒" <${process.env.EMAIL_USER}>`,
+    await sgMail.send({
+        from: { email: FROM_EMAIL, name: 'E-Commerce 🛒' },
         to: toEmail,
         subject: 'Recuperar contraseña',
         html: `
@@ -96,8 +92,8 @@ const sendOrderConfirmationEmail = async (toEmail, userName, order, items = []) 
         </tr>`;
     }).join('');
 
-    await transporter.sendMail({
-        from: `"Game Store Neiva 🎮" <${process.env.EMAIL_USER}>`,
+    await sgMail.send({
+        from: { email: FROM_EMAIL, name: 'Game Store Neiva 🎮' },
         to: toEmail,
         subject: `✅ Pedido #${orderNumber} confirmado — Game Store Neiva`,
         html: `
