@@ -69,10 +69,10 @@ app.use(xss());
 // Seguridad: evitar HTTP Parameter Pollution
 app.use(hpp());
 
-// Rate limiting general: 100 requests por IP cada 15 minutos
+// Rate limiting general: 500 requests por IP cada 15 minutos
 const generalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 100,
+    max: 500,
     message: { success: false, message: 'Demasiadas solicitudes, intenta de nuevo en 15 minutos' },
     standardHeaders: true,
     legacyHeaders: false,
@@ -92,9 +92,8 @@ app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/register', authLimiter);
 app.use('/api/auth/forgot-password', authLimiter);
 
-if (isProduction === false) {
-    app.use(morgan('dev'));
-}
+// Logging HTTP
+app.use(morgan(isProduction ? 'short' : 'dev'));
 
 // ===================== SWAGGER =====================
 const swaggerOptions = {

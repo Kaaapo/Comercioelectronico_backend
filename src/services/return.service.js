@@ -145,7 +145,13 @@ class ReturnService {
 
     // Admin actualiza el estado de una devolución
     async updateReturnStatus(returnId, { status, adminComment }) {
-        const returnRequest = await Return.findByPk(returnId);
+        const returnRequest = await Return.findByPk(returnId, {
+            include: [{
+                model: OrderItem,
+                as: 'orderItem',
+                include: [{ model: Product, as: 'product' }],
+            }],
+        });
 
         if (!returnRequest) {
             const error = new Error('Solicitud de devolución no encontrada');
@@ -154,6 +160,15 @@ class ReturnService {
         }
 
         await returnRequest.update({ status, adminComment });
+
+        // Si se aprueba o completa la devolución, restaurar stock del producto
+        if ((status === 'aprobada' || status === 'completada') && returnRequest.orderItem?.product) {
+            const product = returnRequest.orderItem.product;
+            await product.update({
+                stock: product.stock + returnRequest.quantity,
+            });
+        }
+
         return returnRequest;
     }
 }

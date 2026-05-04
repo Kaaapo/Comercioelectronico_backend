@@ -9,14 +9,20 @@ const { setupOrderSocket } = require('./sockets/orderSocket');
 const PORT = process.env.PORT || 3000;
 const isProduction = process.env.NODE_ENV === 'production';
 
+// Orígenes permitidos (los mismos que usa Express CORS)
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',')
+    : ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:4200'];
+
 // Crear servidor HTTP
 const server = http.createServer(app);
 
-// Configurar Socket.IO
+// Configurar Socket.IO con CORS restringido
 const io = new Server(server, {
     cors: {
-        origin: '*',
+        origin: allowedOrigins,
         methods: ['GET', 'POST'],
+        credentials: true,
     },
 });
 
@@ -51,5 +57,23 @@ const start = async () => {
         process.exit(1);
     }
 };
+
+// Graceful shutdown: cerrar conexiones limpiamente al reiniciar/detener
+const shutdown = async (signal) => {
+    console.log(`\n${signal} recibido. Cerrando servidor...`);
+    server.close(() => {
+        console.log('HTTP server cerrado');
+    });
+    try {
+        await sequelize.close();
+        console.log('Conexión a PostgreSQL cerrada');
+    } catch (err) {
+        console.error('Error cerrando DB:', err.message);
+    }
+    process.exit(0);
+};
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
 
 start();

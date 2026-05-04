@@ -38,10 +38,15 @@ class OrderService {
                 }
             }
 
-            // Calcular total
-            const total = cart.items.reduce(
-                (sum, item) => sum + (parseFloat(item.product.price) * item.quantity), 0
-            );
+            // Calcular total (aplicando descuento si existe)
+            const total = cart.items.reduce((sum, item) => {
+                const product = item.product;
+                let unitPrice = parseFloat(product.price);
+                if (product.discountPercentage && product.discountPercentage > 0) {
+                    unitPrice = unitPrice * (1 - product.discountPercentage / 100);
+                }
+                return sum + (unitPrice * item.quantity);
+            }, 0);
 
             // Crear orden
             const order = await Order.create({
@@ -57,7 +62,13 @@ class OrderService {
                     orderId: order.id,
                     productId: item.productId,
                     quantity: item.quantity,
-                    unitPrice: item.product.price,
+                    unitPrice: (() => {
+                        let price = parseFloat(item.product.price);
+                        if (item.product.discountPercentage && item.product.discountPercentage > 0) {
+                            price = price * (1 - item.product.discountPercentage / 100);
+                        }
+                        return price;
+                    })(),
                 }, { transaction });
 
                 // Descontar stock
@@ -207,6 +218,22 @@ class OrderService {
         if (!order) {
             const error = new Error('Orden no encontrada');
             error.statusCode = 404;
+            throw error;
+        }
+
+        // Validar transiciones de estado permitidas
+        const validTransitions = {
+            pendiente:  ['procesando', 'cancelado'],
+            procesando: ['enviado', 'cancelado'],
+            enviado:    ['entregado'],
+            entregado:  [],
+            cancelado:  [],
+        };
+
+        const allowed = validTransitions[order.status] || [];
+        if (!allowed.includes(status)) {
+            const error = new Error(`No se puede cambiar de "${order.status}" a "${status}". Transiciones válidas: ${allowed.join(', ') || 'ninguna'}`);
+            error.statusCode = 400;
             throw error;
         }
 
