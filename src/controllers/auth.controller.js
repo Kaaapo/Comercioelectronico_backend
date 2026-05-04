@@ -4,8 +4,8 @@ const ApiResponse = require('../utils/apiResponse');
 class AuthController {
     async register(req, res, next) {
         try {
-            const { user, token } = await authService.register(req.body);
-            return ApiResponse.created(res, { user, token }, 'Usuario registrado exitosamente');
+            const result = await authService.register(req.body);
+            return ApiResponse.created(res, null, result.message);
         } catch (error) {
             next(error);
         }

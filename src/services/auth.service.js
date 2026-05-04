@@ -38,8 +38,7 @@ class AuthService {
         sendVerificationEmail(email, name, verificationToken)
             .catch(err => console.error('[Email] Error al enviar verificación:', err.message));
 
-        const token = this.generateToken(user);
-        return { user, token };
+        return { message: 'Registro exitoso. Revisa tu correo electrónico para verificar tu cuenta.' };
     }
 
     async login({ email, password }) {
@@ -54,6 +53,12 @@ class AuthService {
         if (!isValidPassword) {
             const error = new Error('Credenciales inválidas');
             error.statusCode = 401;
+            throw error;
+        }
+
+        if (!user.emailVerified) {
+            const error = new Error('Debes verificar tu correo electrónico antes de iniciar sesión. Revisa tu bandeja de entrada.');
+            error.statusCode = 403;
             throw error;
         }
 
