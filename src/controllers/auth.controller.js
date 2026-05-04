@@ -40,15 +40,17 @@ class AuthController {
     }
 
     async verifyEmail(req, res, next) {
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
         try {
             const { token } = req.query;
             if (!token) {
-                return res.status(400).json({ success: false, message: 'Token requerido' });
+                return res.redirect(`${frontendUrl}/login?error=token_requerido`);
             }
-            const user = await authService.verifyEmail(token);
-            return ApiResponse.success(res, { user }, '¡Correo verificado exitosamente! Ya puedes iniciar sesión.');
+            await authService.verifyEmail(token);
+            return res.redirect(`${frontendUrl}/login?verified=true`);
         } catch (error) {
-            next(error);
+            // Token inválido o expirado → redirigir con mensaje de error
+            return res.redirect(`${frontendUrl}/login?error=verificacion_fallida`);
         }
     }
 
