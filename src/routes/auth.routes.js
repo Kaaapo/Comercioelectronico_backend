@@ -174,7 +174,7 @@ router.get('/verify-email', authController.verifyEmail);
  *       200:
  *         description: Correo enviado si el email existe
  */
-router.post('/forgot-password', authController.forgotPassword);
+router.post('/forgot-password', validators.forgotPassword, validate, authController.forgotPassword);
 
 /**
  * @swagger
@@ -206,6 +206,6 @@ router.post('/forgot-password', authController.forgotPassword);
  *       400:
  *         description: Token inválido o expirado
  */
-router.post('/reset-password', authController.resetPassword);
+router.post('/reset-password', validators.resetPassword, validate, authController.resetPassword);
 
 module.exports = router;

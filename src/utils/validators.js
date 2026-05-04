@@ -56,8 +56,12 @@ const validators = {
             .matches(/^\+?[\d\s\-().]{7,20}$/)
             .withMessage('El número de teléfono no es válido (incluye código de país, ej: +573001234567)'),
         body('password')
-            .isLength({ min: 6 })
-            .withMessage('La contraseña debe tener al menos 6 caracteres'),
+            .isLength({ min: 8 })
+            .withMessage('La contraseña debe tener al menos 8 caracteres')
+            .matches(/[A-Za-z]/)
+            .withMessage('La contraseña debe contener al menos una letra')
+            .matches(/[0-9]/)
+            .withMessage('La contraseña debe contener al menos un número'),
     ],
 
     updateProfile: [
@@ -117,6 +121,22 @@ const validators = {
     login: [
         body('email').isEmail().withMessage('Email inválido').normalizeEmail(),
         body('password').notEmpty().withMessage('La contraseña es requerida'),
+    ],
+
+    forgotPassword: [
+        body('email')
+            .isEmail().withMessage('Debes ingresar un email válido')
+            .normalizeEmail(),
+    ],
+
+    resetPassword: [
+        body('password')
+            .isLength({ min: 8 })
+            .withMessage('La contraseña debe tener al menos 8 caracteres')
+            .matches(/[A-Za-z]/)
+            .withMessage('La contraseña debe contener al menos una letra')
+            .matches(/[0-9]/)
+            .withMessage('La contraseña debe contener al menos un número'),
     ],
 
     // Products
