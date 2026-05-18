@@ -6,8 +6,7 @@ class PaymentController {
         try {
             const io = req.app.get('io');
             const result = await paymentService.processPayment(req.body, req.user.id, io);
-            const statusCode = result.payment.status === 'aprobado' ? 200 : 402;
-            return res.status(statusCode).json({
+            return res.status(200).json({
                 success: result.payment.status === 'aprobado',
                 message: result.message,
                 data: {
