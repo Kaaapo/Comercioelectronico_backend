@@ -1,6 +1,5 @@
 const { Order, OrderItem, Cart, CartItem, Product, Payment, User, Category, sequelize } = require('../models');
 const { emitNotification } = require('../sockets/orderSocket');
-const { sendOrderConfirmationEmail } = require('./email.service');
 
 class OrderService {
     async createFromCart(userId, { shippingAddress }, io) {
@@ -97,17 +96,6 @@ class OrderService {
                     { orderId: order.id, userId, total: order.total }
                 );
             }
-
-            // ── Email (no bloquea la respuesta) ──────────────────
-            const user = fullOrder.user;
-            const orderItems = fullOrder.items || [];
-
-            sendOrderConfirmationEmail(
-                user?.email,
-                user?.name || 'Cliente',
-                fullOrder,
-                orderItems
-            ).catch(err => console.error('[Email] Error al enviar confirmación de pedido:', err.message));
 
             return fullOrder;
         } catch (error) {
