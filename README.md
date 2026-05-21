@@ -1,5 +1,5 @@
-> [!IMPORTANT]
-> Proyecto en desarrollo
+> [!NOTE]
+> Proyecto Terminado
 
 # Comercio Electrónico - Backend API
 
